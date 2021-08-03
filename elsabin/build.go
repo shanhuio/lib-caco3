@@ -106,7 +106,7 @@ func cmdBuild(args []string) error {
 		false,
 		"if update when running docker pull",
 	)
-	flags.ParseArgs(args)
+	args = flags.ParseArgs(args)
 
 	b := elsa.NewBuilder(config)
 
