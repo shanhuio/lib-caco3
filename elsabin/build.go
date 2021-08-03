@@ -48,7 +48,13 @@ func buildDockers(b *elsa.Builder, dir string, docks []string) error {
 	return nil
 }
 
-func buildStep(b *elsa.Builder, step *elsa.BuildStep) error {
+type buildOptions struct {
+	DockerPull *elsa.DockerPullOptions
+}
+
+func buildStep(
+	b *elsa.Builder, step *elsa.BuildStep, opts *buildOptions,
+) error {
 	log.Printf("build %s", step.Name)
 	dir := step.Dir
 	if dir == "" {
@@ -70,10 +76,12 @@ func buildStep(b *elsa.Builder, step *elsa.BuildStep) error {
 	return nil
 }
 
-func buildTarget(b *elsa.Builder, targets *targets, name string) error {
+func buildTarget(
+	b *elsa.Builder, targets *targets, name string, opts *buildOptions,
+) error {
 	step, ok := targets.m[name]
 	if ok {
-		return buildStep(b, step)
+		return buildStep(b, step, opts)
 	}
 	if name == "base" {
 		return b.BuildBase()
@@ -85,9 +93,19 @@ func buildTarget(b *elsa.Builder, targets *targets, name string) error {
 }
 
 func cmdBuild(args []string) error {
+	opts := &buildOptions{
+		DockerPull: &elsa.DockerPullOptions{},
+	}
+
 	flags := cmdFlags.New()
 	config := new(elsa.Config)
 	declareBuildFlags(flags, config)
+	flags.BoolVar(
+		&opts.DockerPull.Update,
+		"docker_pull_update",
+		false,
+		"if update when running docker pull",
+	)
 	flags.ParseArgs(args)
 
 	b := elsa.NewBuilder(config)
@@ -100,13 +118,13 @@ func cmdBuild(args []string) error {
 
 	if len(args) == 0 {
 		for _, step := range ts.steps {
-			if err := buildStep(b, step); err != nil {
+			if err := buildStep(b, step, opts); err != nil {
 				return errcode.Annotatef(err, "build %q", step.Name)
 			}
 		}
 	} else {
 		for _, target := range args {
-			if err := buildTarget(b, ts, target); err != nil {
+			if err := buildTarget(b, ts, target, opts); err != nil {
 				return errcode.Annotatef(err, "build %q", target)
 			}
 		}
