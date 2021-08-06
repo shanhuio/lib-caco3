@@ -70,8 +70,7 @@ func buildStep(
 		return buildDockers(b, dir, step.Dockers)
 	}
 	if step.DockerPull != nil {
-		opt := &elsa.DockerPullOptions{}
-		return b.PullDockers(dir, step.DockerPull, opt)
+		return b.PullDockers(dir, step.DockerPull, opts.DockerPull)
 	}
 	return nil
 }
