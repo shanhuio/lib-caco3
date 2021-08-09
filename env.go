@@ -63,7 +63,13 @@ func (e *env) gopath() string { return e.src("go") }
 
 func (e *env) goSrc() string {
 	if e.goSrcDir != "" {
-		return e.goSrcDir
+		if e.goSrcDir == "@" {
+			if sys := systemGoSrc(); sys != "" {
+				return sys
+			}
+		} else {
+			return e.goSrcDir
+		}
 	}
 	return filepath.Join(e.gopath(), "src")
 }
