@@ -28,6 +28,7 @@ func cmdSync(args []string) error {
 	config := new(elsa.Config)
 	declareBuildFlags(flags, config)
 	pull := flags.Bool("pull", false, "pull latest commit")
+	save := flags.Bool("save", false, "save latest commit into sums file")
 	flags.ParseArgs(args)
 
 	b := elsa.NewBuilder(config)
@@ -45,5 +46,14 @@ func cmdSync(args []string) error {
 		sums = s
 	}
 
-	return b.SyncRepos(build, sums)
+	newSums, err := b.SyncRepos(build, sums)
+	if err != nil {
+		return err
+	}
+	if *save {
+		if err := elsa.SaveBuildSums(buildSumsFile, newSums); err != nil {
+			return errcode.Annotate(err, "save build sums")
+		}
+	}
+	return nil
 }

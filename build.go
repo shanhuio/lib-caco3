@@ -71,3 +71,8 @@ func ReadBuildSums(f string) (*BuildSums, error) {
 	}
 	return b, nil
 }
+
+// SaveBuildSums saves sums to f.
+func SaveBuildSums(f string, sums *BuildSums) error {
+	return jsonx.WriteFile(f, sums)
+}

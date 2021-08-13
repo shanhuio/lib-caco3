@@ -46,16 +46,21 @@ func currentGitCommit(dir string) (string, error) {
 	return strings.TrimSpace(string(ret)), nil
 }
 
-func gitSync(name, dir, remote, commit string) (bool, error) {
+type syncResult struct {
+	commit  string
+	updated bool
+}
+
+func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 	if commit == "" {
 		latest, err := runCmdOutput(dir, "git", "ls-remote", remote, "HEAD")
 		if err != nil {
-			return false, errcode.Annotate(err, "git ls-remote")
+			return nil, errcode.Annotate(err, "git ls-remote")
 		}
 		line := strings.TrimSpace(string(latest))
 		fields := strings.Fields(line)
 		if len(fields) == 0 {
-			return false, errcode.Internalf("bad remote commit: %q", line)
+			return nil, errcode.Internalf("bad remote commit: %q", line)
 		}
 		commit = fields[0]
 	}
@@ -63,19 +68,19 @@ func gitSync(name, dir, remote, commit string) (bool, error) {
 	gitDir := filepath.Join(dir, ".git")
 	exist, err := osutil.IsDir(gitDir)
 	if err != nil {
-		return false, errcode.Annotate(err, "check git dir")
+		return nil, errcode.Annotate(err, "check git dir")
 	}
 
 	const stashBranch = "elsa"
 
 	if !exist {
 		if err := runCmd(dir, "git", "init", "-q"); err != nil {
-			return false, errcode.Annotate(err, "git init")
+			return nil, errcode.Annotate(err, "git init")
 		}
 		if err := runCmd(
 			dir, "git", "remote", "add", "origin", remote,
 		); err != nil {
-			return false, errcode.Annotate(err, "git add remote")
+			return nil, errcode.Annotate(err, "git add remote")
 		}
 
 		log.Printf(
@@ -84,10 +89,10 @@ func gitSync(name, dir, remote, commit string) (bool, error) {
 	} else {
 		cur, err := currentGitCommit(dir)
 		if err != nil {
-			return false, errcode.Annotate(err, "get current comment")
+			return nil, errcode.Annotate(err, "get current comment")
 		}
 		if cur == commit {
-			return false, nil
+			return &syncResult{commit: cur}, nil
 		}
 
 		if cur != "" {
@@ -95,18 +100,18 @@ func gitSync(name, dir, remote, commit string) (bool, error) {
 				dir, "git", "cat-file", "-e", commit,
 			)
 			if err != nil {
-				return false, errcode.Annotate(err, "git check commit")
+				return nil, errcode.Annotate(err, "git check commit")
 			}
 			if hasCommit {
 				isAncestor, err := callCmd(
 					dir, "git", "merge-base", "--is-ancestor", commit, cur,
 				)
 				if err != nil {
-					return false, errcode.Annotate(err, "git merge check")
+					return nil, errcode.Annotate(err, "git merge check")
 				}
 				if isAncestor {
 					// merge will be a noop, just update stash branch.
-					return false, runCmd(
+					return nil, runCmd(
 						dir, "git", "branch", "-q", "-f", stashBranch, commit,
 					)
 				}
@@ -127,48 +132,56 @@ func gitSync(name, dir, remote, commit string) (bool, error) {
 	if err := runCmd(
 		dir, "git", "fetch", "-q", remote, "HEAD",
 	); err != nil {
-		return false, errcode.Annotate(err, "git fetch")
+		return nil, errcode.Annotate(err, "git fetch")
 	}
 	if err := runCmd(
 		dir, "git", "branch", "-q", "-f", stashBranch, commit,
 	); err != nil {
-		return false, errcode.Annotate(err, "git branch stash")
+		return nil, errcode.Annotate(err, "git branch stash")
 	}
 	if err := runCmd(
 		dir, "git", "merge", "-q", stashBranch,
 	); err != nil {
-		return false, errcode.Annotate(err, "git merge stash")
+		return nil, errcode.Annotate(err, "git merge stash")
 	}
 
-	return true, nil
+	return &syncResult{
+		commit:  commit,
+		updated: true,
+	}, nil
 }
 
-func syncRepos(env *env, b *Build, sums *BuildSums) error {
+func syncRepos(env *env, b *Build, sums *BuildSums) (*BuildSums, error) {
 	var dirs []string
 	for dir := range b.Repos {
 		dirs = append(dirs, dir)
 	}
 	sort.Strings(dirs)
 
+	curSums := &BuildSums{
+		RepoCommits: make(map[string]string),
+	}
+
 	for _, dir := range dirs {
 		git := b.Repos[dir]
 		srcDir := env.src(dir)
 		if err := os.MkdirAll(srcDir, 0755); err != nil {
-			return errcode.Annotatef(err, "make dir for %q", dir)
+			return nil, errcode.Annotatef(err, "make dir for %q", dir)
 		}
 
 		commit := ""
 		if sums != nil {
 			c, ok := sums.RepoCommits[dir]
 			if !ok {
-				return errcode.InvalidArgf("commit missing for %q", dir)
+				return nil, errcode.InvalidArgf("commit missing for %q", dir)
 			}
 			commit = c
 		}
-		if _, err := gitSync(dir, srcDir, git, commit); err != nil {
-			return errcode.Annotatef(err, "git sync %q", dir)
+		result, err := gitSync(dir, srcDir, git, commit)
+		if err != nil {
+			return nil, errcode.Annotatef(err, "git sync %q", dir)
 		}
-
+		curSums.RepoCommits[dir] = result.commit
 	}
-	return nil
+	return curSums, nil
 }
