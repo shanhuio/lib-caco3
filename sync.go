@@ -111,9 +111,12 @@ func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 				}
 				if isAncestor {
 					// merge will be a noop, just update stash branch.
-					return nil, runCmd(
+					if err := runCmd(
 						dir, "git", "branch", "-q", "-f", stashBranch, commit,
-					)
+					); err != nil {
+						return nil, errcode.Annotate(err, "git branch")
+					}
+					return &syncResult{commit: cur}, nil
 				}
 			}
 
