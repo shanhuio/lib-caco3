@@ -38,6 +38,9 @@ func newNodeJS(env *env, image string) *nodeJS {
 }
 
 func (n *nodeJS) build(dir string, spec *NodeJS) error {
+	// TODO(h8liu): the current implementation does not work for
+	// repositories with local dependencies.
+
 	absSrc, err := filepath.Abs(n.env.src())
 	if err != nil {
 		return errcode.Annotate(err, "get absolute src dir")
@@ -89,12 +92,12 @@ func (n *nodeJS) build(dir string, spec *NodeJS) error {
 
 	var cmds [][]string
 
-	workDirDir := path.Clean(linuxPathJoin(workRoot, path.Dir(dir)))
-	if workDirDir != workRoot {
-		cmds = append(cmds, []string{"mkdir", "-p", workDirDir})
+	workDirParent := path.Clean(linuxPathJoin(workRoot, path.Dir(dir)))
+	if workDirParent != workRoot {
+		cmds = append(cmds, []string{"mkdir", "-p", workDirParent})
 	}
 	cmds = append(cmds, []string{
-		"cp", "-R", linuxPathJoin(srcRoot, dir), workDirDir,
+		"cp", "-R", linuxPathJoin(srcRoot, dir), workDirParent,
 	})
 
 	for _, args := range cmds {
