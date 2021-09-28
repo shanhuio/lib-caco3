@@ -19,6 +19,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"shanhu.io/virgo/dock"
 )
@@ -79,6 +80,10 @@ func (e *env) docker() *dock.Client { return e.dock }
 func (e *env) dockerName(s string) string {
 	if e.dockerRegistry == "" {
 		return s
+	}
+	const prefix = "docker/"
+	if strings.HasPrefix(s, prefix) {
+		s = strings.TrimPrefix(s, prefix)
 	}
 	return path.Join(e.dockerRegistry, s)
 }
