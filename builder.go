@@ -84,6 +84,7 @@ func (b *Builder) BuildBase() error {
 		dockerGolang,
 		dockerForge,
 		dockerNodejs,
+		dockerApp,
 	}
 
 	if err := b.buildBase(dockers); err != nil {
