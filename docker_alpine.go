@@ -20,7 +20,7 @@ import (
 )
 
 const alpineDockerfile = `
-FROM alpine
+FROM alpine:3.14.2
 MAINTAINER Shanhu Tech Inc.
 
 RUN apk update
