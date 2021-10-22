@@ -143,7 +143,7 @@ func pullDockers(
 		if err != nil {
 			return errcode.Annotate(err, "prepare output")
 		}
-		if err := dock.SaveImageGz(c, img, out); err != nil {
+		if err := dock.SaveImageGz(c, gotSum.ID, out); err != nil {
 			return errcode.Annotate(err, "save output")
 		}
 
