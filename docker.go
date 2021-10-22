@@ -41,12 +41,17 @@ func buildDockerImage(
 		return errcode.Annotate(err, "build image")
 	}
 
+	info, err := dock.InspectImage(c, dockName)
+	if err != nil {
+		return errcode.Annotate(err, "inspect built image")
+	}
+
 	log.Printf("saving docker %s", name)
 	out, err := env.prepareOut(name + ".tgz")
 	if err != nil {
 		return errcode.Annotate(err, "prepare output")
 	}
-	if err := dock.SaveImageGz(c, dockName, out); err != nil {
+	if err := dock.SaveImageGz(c, info.ID, out); err != nil {
 		return errcode.Annotate(err, "save output")
 	}
 
@@ -65,12 +70,11 @@ func buildDockerImage(
 }
 
 type docker struct {
-	env   *env
-	forge string
+	env *env
 }
 
-func newDocker(env *env, forge string) *docker {
-	return &docker{env: env, forge: forge}
+func newDocker(env *env) *docker {
+	return &docker{env: env}
 }
 
 type dockerFileInput struct {

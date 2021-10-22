@@ -115,7 +115,7 @@ func (b *Builder) BuildNodeJS(dir string, js *NodeJS) error {
 
 // BuildDocker builds a docker.
 func (b *Builder) BuildDocker(dir string) error {
-	d := newDocker(b.env, b.env.dockerName(dockerForge.name))
+	d := newDocker(b.env)
 	return d.build(dir)
 }
 
