@@ -31,7 +31,7 @@ MAINTAINER Shanhu Tech Inc.
 
 RUN apk add --update \
 	nodejs npm make git openssh zip
-RUN npm install -g npm@8.1.1
+RUN npm install -g npm@8.1.2
 RUN npm install -g typescript less {{.Esbuild}}
 
 RUN mkdir /usr/local/idle
