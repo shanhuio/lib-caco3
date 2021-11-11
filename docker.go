@@ -33,7 +33,7 @@ import (
 
 type dockerImageOptions struct {
 	tags     []string
-	stripTag bool
+	saveName bool
 }
 
 func buildDockerImage(
@@ -53,11 +53,10 @@ func buildDockerImage(
 		return errcode.Annotate(err, "prepare output")
 	}
 
-	saveFrom := dockName
-	if options != nil && options.stripTag {
-		// if stripTag is set, then we save the hash rather than
-		// the tag.
-
+	var saveFrom string
+	if options != nil && options.saveName {
+		saveFrom = dockName
+	} else {
 		info, err := dock.InspectImage(c, dockName)
 		if err != nil {
 			return errcode.Annotate(err, "inspect built image")
@@ -178,7 +177,7 @@ func (d *docker) parseInput(dir, in string) (string, error) {
 	return "", errcode.InvalidArgf("unsupported scheme: %q", in)
 }
 
-func (d *docker) build(dir string) error {
+func (d *docker) build(dir string, saveTags bool) error {
 	srcDir := d.env.src(dir)
 	const dockerFileName = "Dockerfile"
 	bs, err := ioutil.ReadFile(filepath.Join(srcDir, dockerFileName))

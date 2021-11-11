@@ -22,8 +22,9 @@ import (
 // Build is the structure of the build.jsonx file. It specifies how
 // to build a project.
 type Build struct {
-	Repos map[string]string
-	Steps []*BuildStep `json:",omitempty"`
+	Repos          map[string]string
+	Steps          []*BuildStep `json:",omitempty"`
+	DockerSaveName bool         `json:",omitempty"`
 }
 
 // BuildStep is a rule for a step to build one or several targets in a

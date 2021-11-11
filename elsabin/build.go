@@ -39,9 +39,11 @@ func newTargets(b *elsa.Build) *targets {
 	}
 }
 
-func buildDockers(b *elsa.Builder, dir string, docks []string) error {
+func buildDockers(
+	b *elsa.Builder, dir string, docks []string, saveName bool,
+) error {
 	for _, d := range docks {
-		if err := b.BuildDocker(path.Join(dir, d)); err != nil {
+		if err := b.BuildDocker(path.Join(dir, d), saveName); err != nil {
 			return errcode.Annotatef(err, "build docker %q", d)
 		}
 	}
@@ -49,7 +51,8 @@ func buildDockers(b *elsa.Builder, dir string, docks []string) error {
 }
 
 type buildOptions struct {
-	DockerPull *elsa.DockerPullOptions
+	DockerPull     *elsa.DockerPullOptions
+	DockerSaveName bool
 }
 
 func buildStep(
@@ -67,7 +70,7 @@ func buildStep(
 		return b.BuildNodeJS(dir, step.NodeJS)
 	}
 	if step.Dockers != nil {
-		return buildDockers(b, dir, step.Dockers)
+		return buildDockers(b, dir, step.Dockers, opts.DockerSaveName)
 	}
 	if step.DockerPull != nil {
 		return b.PullDockers(dir, step.DockerPull, opts.DockerPull)
@@ -113,6 +116,9 @@ func cmdBuild(args []string) error {
 	if err != nil {
 		return errcode.Annotate(err, "read build")
 	}
+
+	opts.DockerSaveName = build.DockerSaveName
+
 	ts := newTargets(build)
 
 	if len(args) == 0 {
