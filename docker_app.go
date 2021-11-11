@@ -34,6 +34,6 @@ var dockerApp = &baseDocker{
 	name: "base/app",
 	build: func(env *env, name string) error {
 		ts := dock.NewTarStream(appDockerFile)
-		return buildDockerImage(env, name, nil, ts)
+		return buildDockerImage(env, name, ts, nil)
 	},
 }

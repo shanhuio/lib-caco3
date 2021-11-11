@@ -37,6 +37,6 @@ var dockerForge = &baseDocker{
 	build: func(env *env, name string) error {
 		ts := dock.NewTarStream(forgeDockerfile)
 		ts.AddString("idle.go", tarutil.ModeMeta(0600), idleGo)
-		return buildDockerImage(env, name, nil, ts)
+		return buildDockerImage(env, name, ts, nil)
 	},
 }

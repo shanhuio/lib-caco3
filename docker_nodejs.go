@@ -21,6 +21,7 @@ import (
 	"text/template"
 
 	"shanhu.io/misc/errcode"
+	"shanhu.io/misc/jsonx"
 	"shanhu.io/misc/tarutil"
 	"shanhu.io/virgo/dock"
 )
@@ -31,7 +32,7 @@ MAINTAINER Shanhu Tech Inc.
 
 RUN apk add --update \
 	nodejs npm make git openssh zip
-RUN npm install -g npm@8.1.2
+RUN npm install -g npm@{{.NPM}}
 RUN npm install -g typescript less {{.Esbuild}}
 
 RUN mkdir /usr/local/idle
@@ -44,12 +45,15 @@ var nodejsDockerfileTmpl = template.Must(
 	template.New("_").Parse(nodejsDockerfileContent),
 )
 
-func makeNodeJSDockerFile() (string, error) {
+func makeNodeJSDockerFile(npmVersion string) (string, error) {
 	buf := new(bytes.Buffer)
 
 	var dat struct {
+		NPM     string
 		Esbuild string
 	}
+
+	dat.NPM = npmVersion
 
 	switch runtime.GOARCH {
 	case "amd64":
@@ -79,12 +83,20 @@ f()`
 var dockerNodejs = &baseDocker{
 	name: "base/nodejs",
 	build: func(env *env, name string) error {
-		dockerFile, err := makeNodeJSDockerFile()
+		var version struct {
+			NPM string
+		}
+		versionFile := env.src("base/nodejs.jsonx")
+		if err := jsonx.ReadFile(versionFile, &version); err != nil {
+			return errcode.Annotate(err, "read nodejs version")
+		}
+
+		dockerFile, err := makeNodeJSDockerFile(version.NPM)
 		if err != nil {
 			return errcode.Annotate(err, "make DockerFile")
 		}
 		ts := dock.NewTarStream(dockerFile)
 		ts.AddString("idle.js", tarutil.ModeMeta(0600), idleJS)
-		return buildDockerImage(env, name, nil, ts)
+		return buildDockerImage(env, name, ts, nil)
 	},
 }

@@ -16,21 +16,56 @@
 package elsa
 
 import (
+	"bytes"
+	"text/template"
+
+	"shanhu.io/misc/errcode"
+	"shanhu.io/misc/jsonx"
 	"shanhu.io/virgo/dock"
 )
 
-const alpineDockerfile = `
-FROM alpine:3.14.2
+const alpineDockerfileContent = `
+FROM alpine:{{.Version}}
 MAINTAINER Shanhu Tech Inc.
 
 RUN apk update
 RUN apk add ca-certificates && update-ca-certificates
 `
 
+var alpineDockerfileTmpl = template.Must(
+	template.New("_").Parse(alpineDockerfileContent),
+)
+
+func makeAlpineDockerFile(ver string) (string, error) {
+	buf := new(bytes.Buffer)
+	dat := struct {
+		Version string
+	}{
+		Version: ver,
+	}
+	if err := alpineDockerfileTmpl.Execute(buf, &dat); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
 var dockerAlpine = &baseDocker{
 	name: "base/alpine",
 	build: func(env *env, name string) error {
-		ts := dock.NewTarStream(alpineDockerfile)
-		return buildDockerImage(env, name, nil, ts)
+		var version struct {
+			Version string
+		}
+		versionFile := env.src("base/alpine.jsonx")
+		if err := jsonx.ReadFile(versionFile, &version); err != nil {
+			return errcode.Annotate(err, "read alpine version")
+		}
+
+		dockerFile, err := makeAlpineDockerFile(version.Version)
+		if err != nil {
+			return errcode.Annotate(err, "make Dockerfile")
+		}
+
+		ts := dock.NewTarStream(dockerFile)
+		return buildDockerImage(env, name, ts, nil)
 	},
 }

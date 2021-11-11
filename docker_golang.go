@@ -53,6 +53,6 @@ var dockerGolang = &baseDocker{
 
 		ts := dock.NewTarStream(golangDockerfile)
 		ts.AddFile("go.tar.gz", tarutil.ModeMeta(0600), env.out("go.tar.gz"))
-		return buildDockerImage(env, name, nil, ts)
+		return buildDockerImage(env, name, ts, nil)
 	},
 }

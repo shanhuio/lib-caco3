@@ -31,8 +31,14 @@ import (
 	"shanhu.io/virgo/dock"
 )
 
+type dockerImageOptions struct {
+	tags     []string
+	stripTag bool
+}
+
 func buildDockerImage(
-	env *env, name string, tags []string, files *tarutil.Stream,
+	env *env, name string, files *tarutil.Stream,
+	options *dockerImageOptions,
 ) error {
 	c := env.docker()
 
@@ -41,28 +47,38 @@ func buildDockerImage(
 		return errcode.Annotate(err, "build image")
 	}
 
-	info, err := dock.InspectImage(c, dockName)
-	if err != nil {
-		return errcode.Annotate(err, "inspect built image")
-	}
-
 	log.Printf("saving docker %s", name)
 	out, err := env.prepareOut(name + ".tgz")
 	if err != nil {
 		return errcode.Annotate(err, "prepare output")
 	}
-	if err := dock.SaveImageGz(c, info.ID, out); err != nil {
+
+	saveFrom := dockName
+	if options != nil && options.stripTag {
+		// if stripTag is set, then we save the hash rather than
+		// the tag.
+
+		info, err := dock.InspectImage(c, dockName)
+		if err != nil {
+			return errcode.Annotate(err, "inspect built image")
+		}
+		saveFrom = info.ID
+	}
+
+	if err := dock.SaveImageGz(c, saveFrom, out); err != nil {
 		return errcode.Annotate(err, "save output")
 	}
 
-	for _, t := range tags {
-		repo, tag := dock.ParseImageTag(t)
-		if tag == "" {
-			tag = "latest"
-		}
-		log.Printf("tag as %s:%s", repo, tag)
-		if err := dock.TagImage(c, dockName, repo, tag); err != nil {
-			return errcode.Annotatef(err, "tag %q", t)
+	if options != nil {
+		for _, t := range options.tags {
+			repo, tag := dock.ParseImageTag(t)
+			if tag == "" {
+				tag = "latest"
+			}
+			log.Printf("tag as %s:%s", repo, tag)
+			if err := dock.TagImage(c, dockName, repo, tag); err != nil {
+				return errcode.Annotatef(err, "tag %q", t)
+			}
 		}
 	}
 
@@ -198,7 +214,8 @@ func (d *docker) build(dir string) error {
 		ts.AddZipFile(p)
 	}
 
-	if err := buildDockerImage(d.env, dir, in.tags, ts); err != nil {
+	opts := &dockerImageOptions{tags: in.tags}
+	if err := buildDockerImage(d.env, dir, ts, opts); err != nil {
 		return errcode.Annotatef(err, "build docker %q", dir)
 	}
 
