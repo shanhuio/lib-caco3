@@ -177,7 +177,7 @@ func (d *docker) parseInput(dir, in string) (string, error) {
 	return "", errcode.InvalidArgf("unsupported scheme: %q", in)
 }
 
-func (d *docker) build(dir string, saveTags bool) error {
+func (d *docker) build(dir string, saveName bool) error {
 	srcDir := d.env.src(dir)
 	const dockerFileName = "Dockerfile"
 	bs, err := ioutil.ReadFile(filepath.Join(srcDir, dockerFileName))
@@ -213,7 +213,7 @@ func (d *docker) build(dir string, saveTags bool) error {
 		ts.AddZipFile(p)
 	}
 
-	opts := &dockerImageOptions{tags: in.tags}
+	opts := &dockerImageOptions{tags: in.tags, saveName: saveName}
 	if err := buildDockerImage(d.env, dir, ts, opts); err != nil {
 		return errcode.Annotatef(err, "build docker %q", dir)
 	}
