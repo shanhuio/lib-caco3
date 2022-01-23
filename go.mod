@@ -3,8 +3,8 @@ module shanhu.io/elsa
 go 1.17
 
 require (
-	shanhu.io/misc v0.0.0-20211219232220-7c32d2d7e486
-	shanhu.io/virgo v0.0.0-20211212010407-b9ad883b43d2
+	shanhu.io/misc v0.0.0-20220123153250-f0f2dee335f9
+	shanhu.io/virgo v0.0.0-20220123173748-03fd000a62d4
 )
 
-require shanhu.io/text v0.0.0-20211223054527-6b1ed066cd84 // indirect
+require shanhu.io/text v0.0.0-20220122184333-0dca95772fe1 // indirect
