@@ -115,7 +115,7 @@ func pullDockers(
 		}
 	}
 
-	c := dock.NewUnixClient("")
+	c := env.dock
 
 	newSums := make(map[string]*DockerSum)
 	for _, name := range names {
