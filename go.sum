@@ -402,3 +402,5 @@ shanhu.io/text v0.0.0-20220122184333-0dca95772fe1 h1:e06ysulZWNSHFJ66dNELt2EsSau
 shanhu.io/text v0.0.0-20220122184333-0dca95772fe1/go.mod h1:Np11lL3hfbT5QunuDgouCl65s112Pz3QHvNAdXpJWq8=
 shanhu.io/virgo v0.0.0-20220123173748-03fd000a62d4 h1:aX/7Yi98mCZtvkyo9EK04lHemDnp5Xf8EPNJJ5iXCUE=
 shanhu.io/virgo v0.0.0-20220123173748-03fd000a62d4/go.mod h1:jD79HNPDLW99Kgyr9RuWSjZxmE2nyNc4kAlgu0cXTds=
+shanhu.io/virgo v0.0.0-20220123215816-5232830efacc h1:vlPd5uKKLlY2vELOknuKRnAlQYaLMk/Plk67ZbVFG44=
+shanhu.io/virgo v0.0.0-20220123215816-5232830efacc/go.mod h1:jD79HNPDLW99Kgyr9RuWSjZxmE2nyNc4kAlgu0cXTds=
