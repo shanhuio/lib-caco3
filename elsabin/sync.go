@@ -1,4 +1,4 @@
-// Copyright (C) 2021  Shanhu Tech Inc.
+// Copyright (C) 2022  Shanhu Tech Inc.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU Affero General Public License as published by the
@@ -20,7 +20,7 @@ import (
 	"shanhu.io/misc/errcode"
 )
 
-const buildFile = "build.jsonx"
+const buildFile = "BUILD.elsa"
 const buildSumsFile = "sums.jsonx"
 
 func cmdSync(args []string) error {
@@ -33,9 +33,10 @@ func cmdSync(args []string) error {
 
 	b := elsa.NewBuilder(config)
 
-	build, err := elsa.ReadBuild(buildFile)
-	if err != nil {
-		return errcode.Annotate(err, "read build")
+	build, errs := elsa.ReadBuild(buildFile)
+	if errs != nil {
+		printErrs(errs)
+		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
 	var sums *elsa.BuildSums
 	if !*pull {

@@ -13,21 +13,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsa
+package elsabin
 
 import (
+	"fmt"
 	"os"
-	"path/filepath"
+
+	"shanhu.io/text/lexing"
 )
 
-func systemGoSrc() string {
-	gopath := os.Getenv("GOPATH")
-	if gopath == "" {
-		home := os.Getenv("HOME")
-		if home == "" {
-			return ""
-		}
-		return filepath.Join(home, "go", "src")
+func printErrs(errs []*lexing.Error) {
+	for _, err := range errs {
+		fmt.Fprintln(os.Stderr, err)
 	}
-	return filepath.Join(gopath, "src")
 }
