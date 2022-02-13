@@ -16,7 +16,7 @@
 package caco3bin
 
 import (
-	"shanhu.io/caco3/caco3"
+	"shanhu.io/caco3"
 	"shanhu.io/misc/errcode"
 )
 
