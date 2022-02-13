@@ -13,36 +13,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsa
+package caco3
 
 import (
 	"shanhu.io/misc/tarutil"
 	"shanhu.io/virgo/dock"
 )
 
-const hatchDockerfile = `
-FROM cr.shanhu.io/base/alpine
+const forgeDockerfile = `
+FROM cr.shanhu.io/base/golang
 MAINTAINER Shanhu Tech Inc.
 
-RUN apk update && apk add musl-dev go
-RUN mkdir /hatch
-COPY idle.go /hatch/idle.go
-RUN cd /hatch && go build idle.go
-WORKDIR /hatch
-CMD ["/hatch/idle"]
+RUN mkdir /usr/local/idle
+COPY idle.go /usr/local/idle/idle.go
+RUN cd /usr/local/idle && /usr/local/go/bin/go build idle.go
+RUN rm /usr/local/idle/idle.go
+
+CMD ["/usr/local/idle/idle"]
 `
 
-// This idle program is required to perform as an "sleep infinity", but
-// unlike sleep, it can receive signals and be stopped at any time.
-const idleGo = `package main
-import "time"
-func main() { for { time.Sleep(time.Hour) } }
-`
-
-var dockerHatch = &baseDocker{
-	name: "base/hatch",
+var dockerForge = &baseDocker{
+	name: "base/forge",
 	build: func(env *env, name string) error {
-		ts := dock.NewTarStream(hatchDockerfile)
+		ts := dock.NewTarStream(forgeDockerfile)
 		ts.AddString("idle.go", tarutil.ModeMeta(0600), idleGo)
 		return buildDockerImage(env, name, ts, nil)
 	},

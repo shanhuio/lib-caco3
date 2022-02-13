@@ -13,18 +13,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsabin
+package main
 
 import (
-	"shanhu.io/misc/subcmd"
+	"shanhu.io/caco3/caco3bin"
 )
 
-func cmd() *subcmd.List {
-	c := subcmd.New()
-	c.Add("build", "builds a target", cmdBuild)
-	c.Add("sync", "sync source repos", cmdSync)
-	return c
-}
-
-// Main is the entrance for the elsa binary.
-func Main() { cmd().Main() }
+func main() { caco3bin.Main() }

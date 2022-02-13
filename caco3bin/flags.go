@@ -13,16 +13,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsabin
+package caco3bin
 
 import (
-	"shanhu.io/elsa"
+	"shanhu.io/caco3/caco3"
 	"shanhu.io/misc/flagutil"
 )
 
-var cmdFlags = flagutil.NewFactory("elsa")
+var cmdFlags = flagutil.NewFactory("caco3")
 
-func declareBuildFlags(flags *flagutil.FlagSet, c *elsa.Config) {
+func declareBuildFlags(flags *flagutil.FlagSet, c *caco3.Config) {
 	flags.StringVar(&c.Src, "src", "src", "source directory")
 	flags.StringVar(&c.Out, "out", "out", "output directory")
 	flags.StringVar(&c.GoSrc, "gosrc", "", "go language source directory")

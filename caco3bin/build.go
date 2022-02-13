@@ -13,23 +13,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsabin
+package caco3bin
 
 import (
 	"log"
 	"path"
 
-	"shanhu.io/elsa"
+	"shanhu.io/caco3/caco3"
 	"shanhu.io/misc/errcode"
 )
 
 type targets struct {
-	m     map[string]*elsa.BuildStep
-	steps []*elsa.BuildStep
+	m     map[string]*caco3.BuildStep
+	steps []*caco3.BuildStep
 }
 
-func newTargets(b *elsa.Build) *targets {
-	m := make(map[string]*elsa.BuildStep)
+func newTargets(b *caco3.Build) *targets {
+	m := make(map[string]*caco3.BuildStep)
 	for _, step := range b.Steps {
 		m[step.Name] = step
 	}
@@ -40,7 +40,7 @@ func newTargets(b *elsa.Build) *targets {
 }
 
 func buildDockers(
-	b *elsa.Builder, dir string, docks []string, saveName bool,
+	b *caco3.Builder, dir string, docks []string, saveName bool,
 ) error {
 	for _, d := range docks {
 		if err := b.BuildDocker(path.Join(dir, d), saveName); err != nil {
@@ -51,12 +51,12 @@ func buildDockers(
 }
 
 type buildOptions struct {
-	DockerPull     *elsa.DockerPullOptions
+	DockerPull     *caco3.DockerPullOptions
 	DockerSaveName bool
 }
 
 func buildStep(
-	b *elsa.Builder, step *elsa.BuildStep, opts *buildOptions,
+	b *caco3.Builder, step *caco3.BuildStep, opts *buildOptions,
 ) error {
 	log.Printf("build %s", step.Name)
 	dir := step.Dir
@@ -79,7 +79,7 @@ func buildStep(
 }
 
 func buildTarget(
-	b *elsa.Builder, targets *targets, name string, opts *buildOptions,
+	b *caco3.Builder, targets *targets, name string, opts *buildOptions,
 ) error {
 	step, ok := targets.m[name]
 	if ok {
@@ -96,11 +96,11 @@ func buildTarget(
 
 func cmdBuild(args []string) error {
 	opts := &buildOptions{
-		DockerPull: &elsa.DockerPullOptions{},
+		DockerPull: &caco3.DockerPullOptions{},
 	}
 
 	flags := cmdFlags.New()
-	config := new(elsa.Config)
+	config := new(caco3.Config)
 	declareBuildFlags(flags, config)
 	flags.BoolVar(
 		&opts.DockerPull.Update,
@@ -110,9 +110,9 @@ func cmdBuild(args []string) error {
 	)
 	args = flags.ParseArgs(args)
 
-	b := elsa.NewBuilder(config)
+	b := caco3.NewBuilder(config)
 
-	build, errs := elsa.ReadBuild(buildFile)
+	build, errs := caco3.ReadBuild(buildFile)
 	if errs != nil {
 		printErrs(errs)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))

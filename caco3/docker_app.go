@@ -13,21 +13,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsa
+package caco3
 
 import (
-	"os"
-	"path/filepath"
+	"shanhu.io/virgo/dock"
 )
 
-func systemGoSrc() string {
-	gopath := os.Getenv("GOPATH")
-	if gopath == "" {
-		home := os.Getenv("HOME")
-		if home == "" {
-			return ""
-		}
-		return filepath.Join(home, "go", "src")
-	}
-	return filepath.Join(gopath, "src")
+const appDockerFile = `
+FROM cr.shanhu.io/base/alpine
+MAINTAINER Shanhu Tech Inc.
+
+RUN adduser -D -u 3000 app
+RUN mkdir -p /opt/app
+RUN cd /opt/app && mkdir bin var etc lib tmp
+RUN chown -R app /opt/app
+WORKDIR /opt/app
+`
+
+var dockerApp = &baseDocker{
+	name: "base/app",
+	build: func(env *env, name string) error {
+		ts := dock.NewTarStream(appDockerFile)
+		return buildDockerImage(env, name, ts, nil)
+	},
 }

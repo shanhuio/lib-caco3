@@ -13,10 +13,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package main
+package caco3
 
 import (
-	"shanhu.io/elsa/elsabin"
+	"os"
+	"path/filepath"
 )
 
-func main() { elsabin.Main() }
+func systemGoSrc() string {
+	gopath := os.Getenv("GOPATH")
+	if gopath == "" {
+		home := os.Getenv("HOME")
+		if home == "" {
+			return ""
+		}
+		return filepath.Join(home, "go", "src")
+	}
+	return filepath.Join(gopath, "src")
+}

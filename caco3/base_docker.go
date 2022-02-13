@@ -13,17 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsabin
+package caco3
 
-import (
-	"fmt"
-	"os"
-
-	"shanhu.io/text/lexing"
-)
-
-func printErrs(errs []*lexing.Error) {
-	for _, err := range errs {
-		fmt.Fprintln(os.Stderr, err)
-	}
+type baseDocker struct {
+	name  string
+	build func(env *env, name string) error
 }

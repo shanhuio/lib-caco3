@@ -13,27 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsa
+package caco3bin
 
 import (
-	"shanhu.io/virgo/dock"
+	"shanhu.io/misc/subcmd"
 )
 
-const appDockerFile = `
-FROM cr.shanhu.io/base/alpine
-MAINTAINER Shanhu Tech Inc.
-
-RUN adduser -D -u 3000 app
-RUN mkdir -p /opt/app
-RUN cd /opt/app && mkdir bin var etc lib tmp
-RUN chown -R app /opt/app
-WORKDIR /opt/app
-`
-
-var dockerApp = &baseDocker{
-	name: "base/app",
-	build: func(env *env, name string) error {
-		ts := dock.NewTarStream(appDockerFile)
-		return buildDockerImage(env, name, ts, nil)
-	},
+func cmd() *subcmd.List {
+	c := subcmd.New()
+	c.Add("build", "builds a target", cmdBuild)
+	c.Add("sync", "sync source repos", cmdSync)
+	return c
 }
+
+// Main is the entrance for the elsa binary.
+func Main() { cmd().Main() }

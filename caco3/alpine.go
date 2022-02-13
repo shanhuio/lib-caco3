@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package elsa
+package caco3
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ func (a *alpine) buildMod(dir string, pkgs []string) error {
 		return errcode.Annotate(err, "get absolute src dir")
 	}
 
-	const srcRoot = "/go/elsa-src"
+	const srcRoot = "/go/caco3-src"
 
 	contConfig := &dock.ContConfig{
 		Mounts: []*dock.ContMount{{
@@ -69,7 +69,7 @@ func (a *alpine) buildMod(dir string, pkgs []string) error {
 		return err
 	}
 
-	const outRoot = "/go/elsa-out"
+	const outRoot = "/go/caco3-out"
 
 	if err := contExec(cont, []string{"mkdir", "-p", outRoot}); err != nil {
 		return errcode.Annotate(err, "make output root")
