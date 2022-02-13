@@ -65,12 +65,12 @@ type DockerPull struct {
 func ReadBuild(f string) (*Build, []*lexing.Error) {
 	tm := func(t string) interface{} {
 		switch t {
+		case "repo_map":
+			return new(RepoMap)
 		case "build_step":
 			return new(BuildStep)
 		case "build_options":
 			return new(BuildOptions)
-		case "repos":
-			return new(RepoMap)
 		}
 		return nil
 	}
