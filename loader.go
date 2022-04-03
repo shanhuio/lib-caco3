@@ -71,7 +71,7 @@ func (l *loader) load(names []string, pos *lexing.Pos) []*buildNode {
 }
 
 func (l *loader) load1(name string, pos *lexing.Pos) *buildNode {
-	if l.tracer.push(name) {
+	if !l.tracer.push(name) {
 		l.errList.Errorf(
 			pos, "has circular dependency: %q", l.tracer.stack(),
 		)
