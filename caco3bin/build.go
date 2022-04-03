@@ -110,8 +110,6 @@ func cmdBuild(args []string) error {
 	)
 	args = flags.ParseArgs(args)
 
-	b := caco3.NewBuilder(config)
-
 	ws, errs := caco3.ReadWorkspace(workspaceFile)
 	if errs != nil {
 		printErrs(errs)
@@ -121,7 +119,7 @@ func cmdBuild(args []string) error {
 	opts.DockerSaveName = ws.DockerSaveName
 
 	ts := newTargets(ws)
-
+	b := caco3.NewBuilder(config)
 	if len(args) == 0 {
 		for _, step := range ts.steps {
 			if err := buildStep(b, step, opts); err != nil {
@@ -135,5 +133,20 @@ func cmdBuild(args []string) error {
 			}
 		}
 	}
+	return nil
+}
+
+func cmdBuild2(args []string) error {
+	flags := cmdFlags.New()
+	config := new(caco3.Config)
+	declareBuildFlags(flags, config)
+	args = flags.ParseArgs(args)
+
+	b := caco3.NewBuilder(config)
+	if errs := b.Build(args); errs != nil {
+		printErrs(errs)
+		return errcode.InvalidArgf("build got %d errors", len(errs))
+	}
+
 	return nil
 }

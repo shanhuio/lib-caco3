@@ -20,6 +20,7 @@ import (
 	"os"
 
 	"shanhu.io/misc/errcode"
+	"shanhu.io/text/lexing"
 	"shanhu.io/virgo/dock"
 )
 
@@ -142,4 +143,9 @@ func (b *Builder) SyncRepos(ws *Workspace, sums *RepoSums) (
 	*RepoSums, error,
 ) {
 	return syncRepos(b.env, ws, sums)
+}
+
+// Build builds the given rules.
+func (b *Builder) Build(rules []string) []*lexing.Error {
+	panic("todo")
 }
