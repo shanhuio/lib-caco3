@@ -16,11 +16,14 @@
 package caco3bin
 
 import (
+	"os"
+
 	"shanhu.io/caco3"
 	"shanhu.io/misc/errcode"
+	"shanhu.io/text/lexing"
 )
 
-const workspaceFile = "WORKSPACE"
+const workspaceFile = "WORKSPACE.caco3"
 const sumsFile = "sums.jsonx"
 
 func cmdSync(args []string) error {
@@ -31,11 +34,16 @@ func cmdSync(args []string) error {
 	save := flags.Bool("save", false, "save latest commit into sums file")
 	flags.ParseArgs(args)
 
-	b := caco3.NewBuilder(config)
+	wd, err := os.Getwd()
+	if err != nil {
+		return errcode.Annotate(err, "get work dir")
+	}
+
+	b := caco3.NewBuilder(wd, config)
 
 	ws, errs := caco3.ReadWorkspace(workspaceFile)
 	if errs != nil {
-		printErrs(errs)
+		lexing.FprintErrs(os.Stderr, errs, wd)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
 	var sums *caco3.RepoSums

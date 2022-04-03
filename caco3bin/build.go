@@ -17,10 +17,12 @@ package caco3bin
 
 import (
 	"log"
+	"os"
 	"path"
 
 	"shanhu.io/caco3"
 	"shanhu.io/misc/errcode"
+	"shanhu.io/text/lexing"
 )
 
 type targets struct {
@@ -110,16 +112,21 @@ func cmdBuild(args []string) error {
 	)
 	args = flags.ParseArgs(args)
 
+	wd, err := os.Getwd()
+	if err != nil {
+		return errcode.Annotate(err, "get work dir")
+	}
+
 	ws, errs := caco3.ReadWorkspace(workspaceFile)
 	if errs != nil {
-		printErrs(errs)
+		lexing.FprintErrs(os.Stderr, errs, wd)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
 
 	opts.DockerSaveName = ws.DockerSaveName
 
 	ts := newTargets(ws)
-	b := caco3.NewBuilder(config)
+	b := caco3.NewBuilder(wd, config)
 	if len(args) == 0 {
 		for _, step := range ts.steps {
 			if err := buildStep(b, step, opts); err != nil {
@@ -142,9 +149,14 @@ func cmdBuild2(args []string) error {
 	declareBuildFlags(flags, config)
 	args = flags.ParseArgs(args)
 
-	b := caco3.NewBuilder(config)
+	wd, err := os.Getwd()
+	if err != nil {
+		return errcode.Annotate(err, "get work dir")
+	}
+
+	b := caco3.NewBuilder(wd, config)
 	if errs := b.Build(args); errs != nil {
-		printErrs(errs)
+		lexing.FprintErrs(os.Stderr, errs, wd)
 		return errcode.InvalidArgf("build got %d errors", len(errs))
 	}
 

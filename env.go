@@ -28,6 +28,7 @@ type env struct {
 	dock *dock.Client
 	root string
 
+	workDir  string
 	srcDir   string
 	goSrcDir string
 	outDir   string

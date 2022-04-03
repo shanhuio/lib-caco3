@@ -41,9 +41,10 @@ type Builder struct {
 }
 
 // NewBuilder creates a new builder that builds stuff.
-func NewBuilder(config *Config) *Builder {
+func NewBuilder(workDir string, config *Config) *Builder {
 	env := &env{
 		dock:           dock.NewUnixClient(""),
+		workDir:        workDir,
 		srcDir:         config.Src,
 		goSrcDir:       config.GoSrc,
 		outDir:         config.Out,
@@ -147,5 +148,12 @@ func (b *Builder) SyncRepos(ws *Workspace, sums *RepoSums) (
 
 // Build builds the given rules.
 func (b *Builder) Build(rules []string) []*lexing.Error {
+	nodes, nodeMap, errs := loadNodes(b.env, rules)
+	if errs != nil {
+		return errs
+	}
+
+	_, _ = nodes, nodeMap
+
 	panic("todo")
 }
