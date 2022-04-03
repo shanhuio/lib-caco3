@@ -17,17 +17,14 @@ type buildNode struct {
 	deps []string
 	pos  *lexing.Pos
 
-	outs     []string
-	outImage string
-
 	ruleType string
 	rule     buildRule
 	ruleMeta *buildRuleMeta
 }
 
 func (n *buildNode) mainOut() string {
-	if len(n.outs) > 0 {
-		return n.outs[0]
+	if m := n.ruleMeta; m != nil && len(m.outs) > 0 {
+		return m.outs[0]
 	}
 	return ""
 }

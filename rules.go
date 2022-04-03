@@ -1,5 +1,10 @@
 package caco3
 
+const (
+	ruleFileSet = "file_set"
+	ruleBundle  = "bundle"
+)
+
 // FileSet selects a set of files.
 type FileSet struct {
 	Name string

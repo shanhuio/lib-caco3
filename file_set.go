@@ -119,14 +119,23 @@ func newFileSet(env *env, p string, r *FileSet) (*fileSet, error) {
 }
 
 func (fs *fileSet) meta(env *env) (*buildRuleMeta, error) {
-	d, err := makeRuleDigest("fileSet", fs.name, fs.rule)
+	d, err := makeRuleDigest(ruleFileSet, fs.name, fs.rule)
 	if err != nil {
 		return nil, errcode.Annotate(err, "digest")
 	}
 
+	var deps []string
+	deps = append(deps, fs.files...)
+	deps = append(deps, fs.includes...)
+
 	return &buildRuleMeta{
 		name:   fs.name,
-		digest: d,
+		deps:   deps,
 		outs:   []string{fs.out},
+		digest: d,
 	}, nil
+}
+
+func (fs *fileSet) build(env *env, opts *buildOpts) error {
+	panic("todo")
 }

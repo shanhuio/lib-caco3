@@ -3,6 +3,7 @@ package caco3
 type buildRuleMeta struct {
 	name string
 	outs []string
+	deps []string
 
 	// digest captures all non-dependency input such as action type, binded
 	// input, external input, etc.  returns empty string if this always needs
