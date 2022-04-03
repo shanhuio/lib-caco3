@@ -28,6 +28,8 @@ func makeBuildFileNode(t string) interface{} {
 		return new(FileSet)
 	case ruleBundle:
 		return new(Bundle)
+	case ruleDockerPull:
+		return new(DockerPull)
 	}
 	return nil
 }
@@ -58,6 +60,15 @@ func readBuildFile(env *env, p string) ([]*buildNode, []*lexing.Error) {
 				continue
 			}
 			node.rule = fset
+		case *DockerPull:
+			dp, err := newDockerPull(env, p, v)
+			if err != nil {
+				errList.Add(&lexing.Error{Pos: r.Pos, Err: err})
+				continue
+			}
+			node.rule = dp
+		case *Bundle:
+			node.rule = newBundle(env, p, v)
 		default:
 			errList.Errorf(r.Pos, "unknown type: %q", r.Type)
 			continue

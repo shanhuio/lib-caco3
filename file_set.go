@@ -225,5 +225,8 @@ func (fs *fileSet) build(env *env, opts *buildOpts) error {
 	if err != nil {
 		return errcode.Annotate(err, "prepare output")
 	}
-	return jsonutil.WriteFile(out, list)
+	if err := jsonutil.WriteFile(out, list); err != nil {
+		return errcode.Annotate(err, "write output")
+	}
+	return nil
 }

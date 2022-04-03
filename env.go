@@ -16,6 +16,7 @@
 package caco3
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -33,9 +34,11 @@ type env struct {
 	goSrcDir string
 	outDir   string
 
-	goVersion      string
-	dockerRegistry string
-	sshKnownHosts  string
+	cr       string
+	crPrefix string
+
+	goVersion     string
+	sshKnownHosts string
 
 	nodeType func(name string) string
 	ruleType func(name string) string
@@ -84,12 +87,23 @@ func (e *env) goSrc() string {
 func (e *env) docker() *dock.Client { return e.dock }
 
 func (e *env) dockerName(s string) string {
-	if e.dockerRegistry == "" {
+	if e.cr == "" {
 		return s
 	}
 	const prefix = "docker/"
 	if strings.HasPrefix(s, prefix) {
 		s = strings.TrimPrefix(s, prefix)
 	}
-	return path.Join(e.dockerRegistry, s)
+	return path.Join(e.cr, s)
+}
+
+func (e *env) nameToRepoTag(name string) (string, error) {
+	if strings.HasPrefix(name, e.crPrefix) {
+		return "", fmt.Errorf("name has registry prefix: %q", name)
+	}
+	if strings.HasPrefix(name, dockersPrefix) {
+		base := strings.TrimPrefix(name, dockersPrefix)
+		return path.Join(e.cr, base), nil
+	}
+	return name, nil
 }

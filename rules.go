@@ -16,8 +16,9 @@
 package caco3
 
 const (
-	ruleFileSet = "file_set"
-	ruleBundle  = "bundle"
+	ruleFileSet    = "file_set"
+	ruleBundle     = "bundle"
+	ruleDockerPull = "docker_pull"
 )
 
 // FileSet selects a set of files.
@@ -45,4 +46,11 @@ type Bundle struct {
 
 	// Other rule names.
 	Deps []string
+}
+
+// DockerPull is a rule to pull down a docker image.
+type DockerPull struct {
+	Name   string
+	Pull   string `json:",omitempty"`
+	Digest string `json:",omitempty"`
 }

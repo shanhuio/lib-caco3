@@ -44,14 +44,15 @@ type Builder struct {
 // NewBuilder creates a new builder that builds stuff.
 func NewBuilder(workDir string, config *Config) *Builder {
 	env := &env{
-		dock:           dock.NewUnixClient(""),
-		workDir:        workDir,
-		srcDir:         config.Src,
-		goSrcDir:       config.GoSrc,
-		outDir:         config.Out,
-		goVersion:      config.GoVersion,
-		dockerRegistry: config.DockerRegistry,
-		sshKnownHosts:  config.SSHKnownHosts,
+		dock:          dock.NewUnixClient(""),
+		workDir:       workDir,
+		srcDir:        config.Src,
+		goSrcDir:      config.GoSrc,
+		outDir:        config.Out,
+		goVersion:     config.GoVersion,
+		cr:            config.DockerRegistry,
+		crPrefix:      config.DockerRegistry + "/",
+		sshKnownHosts: config.SSHKnownHosts,
 	}
 
 	return &Builder{
@@ -124,7 +125,7 @@ func (b *Builder) BuildDocker(dir string, saveName bool) error {
 
 // PullDockers pulls dockers and save them in output.
 func (b *Builder) PullDockers(
-	dir string, p *DockerPull, opt *DockerPullOptions,
+	dir string, p *DockerPulls, opt *DockerPullOptions,
 ) error {
 	return pullDockers(b.env, dir, p, opt)
 }

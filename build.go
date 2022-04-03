@@ -42,11 +42,11 @@ type BuildOptions struct {
 // directory.
 type BuildStep struct {
 	Name       string
-	Dir        string      `json:",omitempty"`
-	GoBinary   []string    `json:",omitempty"`
-	NodeJS     *NodeJS     `json:",omitempty"`
-	Dockers    []string    `json:",omitempty"`
-	DockerPull *DockerPull `json:",omitempty"`
+	Dir        string       `json:",omitempty"`
+	GoBinary   []string     `json:",omitempty"`
+	NodeJS     *NodeJS      `json:",omitempty"`
+	Dockers    []string     `json:",omitempty"`
+	DockerPull *DockerPulls `json:",omitempty"`
 }
 
 // NodeJS is a rule to build a nodejs/npm package.
@@ -54,9 +54,9 @@ type NodeJS struct {
 	Output []string `json:",omitempty"`
 }
 
-// DockerPull specifies how to pull docker images from docker hub or other
+// DockerPulls specifies how to pull docker images from docker hub or other
 // docker registries.
-type DockerPull struct {
+type DockerPulls struct {
 	Images string
 	Sums   map[string]string `json:",omitempty"`
 }

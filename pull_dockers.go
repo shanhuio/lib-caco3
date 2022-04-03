@@ -83,7 +83,7 @@ type DockerPullOptions struct {
 }
 
 func pullDockers(
-	env *env, dir string, p *DockerPull, opt *DockerPullOptions,
+	env *env, dir string, p *DockerPulls, opt *DockerPullOptions,
 ) error {
 	imagesFile := env.src(dir, p.Images)
 	src := make(map[string]string)
