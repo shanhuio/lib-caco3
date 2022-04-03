@@ -21,9 +21,11 @@ import (
 	"log"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"shanhu.io/misc/errcode"
+	"shanhu.io/misc/jsonutil"
 	"shanhu.io/misc/strutil"
 )
 
@@ -151,6 +153,77 @@ func (fs *fileSet) meta(env *env) (*buildRuleMeta, error) {
 	}, nil
 }
 
+func referenceFileSet(env *env, name string) (string, error) {
+	if t := env.nodeType(name); t == nodeRule {
+		if rt := env.ruleType(name); rt != ruleFileSet {
+			return "", fmt.Errorf("not a file set, but %q", rt)
+		}
+		return fileSetOut(name), nil
+	} else if t != nodeOut {
+		return "", fmt.Errorf("not a file set, but %q", t)
+	}
+	return name, nil
+}
+
 func (fs *fileSet) build(env *env, opts *buildOpts) error {
-	panic("todo")
+	m := make(map[string]*fileStat)
+	add := func(s *fileStat) {
+		// TODO(h8liu): check if files change?
+		if _, ok := m[s.Name]; !ok {
+			m[s.Name] = s
+		}
+	}
+
+	for _, f := range fs.files {
+		t := env.nodeType(f)
+		switch t {
+		case "":
+			return fmt.Errorf("file %q not found", f)
+		case nodeSrc:
+			s, err := newSrcFileStat(env, f)
+			if err != nil {
+				return errcode.Annotatef(err, "file stat %q", f)
+			}
+			add(s)
+		case nodeOut:
+			s, err := newOutFileStat(env, f)
+			if err != nil {
+				return errcode.Annotatef(err, "out file stat %q", f)
+			}
+			add(s)
+		default:
+			return fmt.Errorf("unsupported file type %q", t)
+		}
+	}
+
+	for _, inc := range fs.includes {
+		ref, err := referenceFileSet(env, inc)
+		if err != nil {
+			return errcode.Annotatef(err, "include %q", inc)
+		}
+
+		var list []*fileStat
+		if err := jsonutil.ReadFile(env.out(ref), &list); err != nil {
+			return errcode.Annotatef(err, "read file set %q", inc)
+		}
+		for _, entry := range list {
+			add(entry)
+		}
+	}
+
+	var names []string
+	for name := range m {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	var list []*fileStat
+	for _, name := range names {
+		list = append(list, m[name])
+	}
+	out, err := env.prepareOut(fs.out)
+	if err != nil {
+		return errcode.Annotate(err, "prepare output")
+	}
+	return jsonutil.WriteFile(out, list)
 }
