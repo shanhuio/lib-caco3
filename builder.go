@@ -16,6 +16,7 @@
 package caco3
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -152,8 +153,109 @@ func (b *Builder) Build(rules []string) []*lexing.Error {
 	if errs != nil {
 		return errs
 	}
+	ctx := &buildContext{nodes: nodeMap, built: make(map[string]string)}
+	return b.buildNodes(ctx, nodes)
+}
 
-	_, _ = nodes, nodeMap
+func (b *Builder) buildNodes(
+	ctx *buildContext, nodes []*buildNode,
+) []*lexing.Error {
+	b.env.nodeType = ctx.nodeType
+	b.env.ruleType = ctx.ruleType
 
-	panic("todo")
+	for _, n := range nodes {
+		if n.typ == nodeSrc {
+			log.Printf("%s is a source file", n.name)
+			continue
+		}
+		if _, err := b.buildNode(ctx, n); err != nil {
+			return lexing.SingleErr(err)
+		}
+	}
+	return nil
+}
+
+func (b *Builder) buildNode(ctx *buildContext, n *buildNode) (
+	string, error,
+) {
+	if digest, ok := ctx.built[n.name]; ok {
+		return digest, nil
+	}
+	digest := ""
+	defer func() { ctx.built[n.name] = digest }()
+
+	deps := make(map[string]string)
+	for _, dep := range n.deps {
+		depNode := ctx.nodes[dep]
+		if depNode == nil {
+			return "", fmt.Errorf(
+				"dep %q for %q not found", dep, n.name,
+			)
+		}
+		d, err := b.buildNode(ctx, depNode)
+		if err != nil {
+			return "", err
+		}
+		if d == "" {
+			// If any dep is always rebuilding, then this node
+			// is also always rebuilding.
+			deps = nil
+		} else if deps != nil {
+			deps[dep] = d
+		}
+	}
+
+	if deps != nil { // Not always rebuilding, so calculate the digest
+		switch n.typ {
+		case nodeRule:
+			action := &buildAction{
+				Deps:     deps,
+				RuleType: n.ruleType,
+			}
+			if meta := n.ruleMeta; meta != nil {
+				if meta.digest == "" {
+					break
+				}
+				action.Rule = meta.digest
+			}
+			d, err := makeDigest("build_action", "", action)
+			if err != nil {
+				return "", errcode.Annotate(err, "digest build action")
+			}
+			digest = d
+		case nodeSrc:
+			stat, err := newSrcFileStat(b.env, n.name)
+			if err != nil {
+				return "", errcode.Annotatef(err, "stat file %q", n.name)
+			}
+			d, err := makeDigest("src", "", stat)
+			if err != nil {
+				return "", errcode.Annotate(err, "digest source file")
+			}
+			digest = d
+		case nodeOut:
+			// TODO(h8liu): load output origin digest
+		}
+	}
+
+	if digest != "" {
+		// TODO(h8liu): check build cache here
+	}
+
+	if n.rule != nil {
+		if n.typ == nodeRule {
+			log.Printf("BUILD %s", n.name)
+			// TODO(h8liu): better opts
+			opts := &buildOpts{
+				log: os.Stderr,
+				docker: &dockerOpts{
+					useBuildCache: true,
+				},
+			}
+			if err := n.rule.build(b.env, opts); err != nil {
+				return "", errcode.Annotatef(err, "build %s", n.name)
+			}
+		}
+	}
+	return digest, nil
 }

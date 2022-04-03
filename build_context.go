@@ -15,34 +15,24 @@
 
 package caco3
 
-const (
-	ruleFileSet = "file_set"
-	ruleBundle  = "bundle"
-)
+type buildContext struct {
+	nodes map[string]*buildNode
 
-// FileSet selects a set of files.
-type FileSet struct {
-	Name string
-
-	// The list of files to include in the fileset.
-	Files []string `json:",omitempty"`
-
-	// Selects a set of source input files.
-	Select []string `json:",omitempty"`
-
-	// Ignores a set of source input files after selection.
-	Ignore []string `json:",omitempty"`
-
-	// Merge in other file sets
-	Include []string `json:",omitempty"`
+	built map[string]string // mapping to digests
 }
 
-// Bundle is a set of build rules in a bundle. A bundle has no build actions;
-// it just group rules together.
-type Bundle struct {
-	// Name of the fule
-	Name string
+func (c *buildContext) nodeType(n string) string {
+	node, ok := c.nodes[n]
+	if !ok {
+		return ""
+	}
+	return node.typ
+}
 
-	// Other rule names.
-	Deps []string
+func (c *buildContext) ruleType(n string) string {
+	node, ok := c.nodes[n]
+	if !ok {
+		return ""
+	}
+	return node.ruleType
 }

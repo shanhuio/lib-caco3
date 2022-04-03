@@ -16,32 +16,48 @@
 package caco3
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-	"fmt"
-
-	"shanhu.io/misc/errcode"
+	"os"
 )
 
-// buildAction is a structure for creating the digest of the execution of a
-// rule.
-type buildAction struct {
-	Rule     string `json:",omitempty"` // Digest of the rule functor.
-	RuleType string `json:",omitempty"`
-	Deps     map[string]string
+type fileStat struct {
+	Name         string
+	Type         string
+	Size         int64
+	ModTimestamp int64
+	Mode         uint32
 }
 
-func makeDigest(t, name string, v interface{}) (string, error) {
-	buf := new(bytes.Buffer)
-	fmt.Fprintln(buf, t)
-	fmt.Fprintln(buf, name)
-	bs, err := json.Marshal(v)
-	if err != nil {
-		return "", errcode.Annotate(err, "json marshal")
+const (
+	fileTypeSrc = "s"
+	fileTypeOut = "o"
+)
+
+func newOutFileStat(env *env, p string) (*fileStat, error) {
+	return newFileStat(env, p, fileTypeOut)
+}
+
+func newSrcFileStat(env *env, p string) (*fileStat, error) {
+	return newFileStat(env, p, fileTypeSrc)
+}
+
+func newFileStat(env *env, p, t string) (*fileStat, error) {
+	var f string
+	if t == fileTypeOut {
+		f = env.out(p)
+	} else {
+		f = env.src(p)
 	}
-	buf.Write(bs)
-	sum := sha256.Sum256(buf.Bytes())
-	return "sha256:" + hex.EncodeToString(sum[:]), nil
+
+	info, err := os.Lstat(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return &fileStat{
+		Name:         p,
+		Type:         t,
+		Size:         info.Size(),
+		ModTimestamp: info.ModTime().UnixNano(),
+		Mode:         uint32(info.Mode()),
+	}, nil
 }

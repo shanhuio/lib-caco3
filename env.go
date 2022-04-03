@@ -36,6 +36,9 @@ type env struct {
 	goVersion      string
 	dockerRegistry string
 	sshKnownHosts  string
+
+	nodeType func(name string) string
+	ruleType func(name string) string
 }
 
 func (e *env) prepareOut(ps ...string) (string, error) {
