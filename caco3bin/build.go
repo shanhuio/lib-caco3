@@ -28,14 +28,14 @@ type targets struct {
 	steps []*caco3.BuildStep
 }
 
-func newTargets(b *caco3.Build) *targets {
+func newTargets(ws *caco3.Workspace) *targets {
 	m := make(map[string]*caco3.BuildStep)
-	for _, step := range b.Steps {
+	for _, step := range ws.Steps {
 		m[step.Name] = step
 	}
 	return &targets{
 		m:     m,
-		steps: b.Steps,
+		steps: ws.Steps,
 	}
 }
 
@@ -112,15 +112,15 @@ func cmdBuild(args []string) error {
 
 	b := caco3.NewBuilder(config)
 
-	build, errs := caco3.ReadBuild(buildFile)
+	ws, errs := caco3.ReadWorkspace(workspaceFile)
 	if errs != nil {
 		printErrs(errs)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
 
-	opts.DockerSaveName = build.DockerSaveName
+	opts.DockerSaveName = ws.DockerSaveName
 
-	ts := newTargets(build)
+	ts := newTargets(ws)
 
 	if len(args) == 0 {
 		for _, step := range ts.steps {

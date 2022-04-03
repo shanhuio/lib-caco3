@@ -20,8 +20,8 @@ import (
 	"shanhu.io/misc/errcode"
 )
 
-const buildFile = "BUILD.caco3"
-const buildSumsFile = "sums.jsonx"
+const workspaceFile = "WORKSPACE"
+const sumsFile = "sums.jsonx"
 
 func cmdSync(args []string) error {
 	flags := cmdFlags.New()
@@ -33,26 +33,26 @@ func cmdSync(args []string) error {
 
 	b := caco3.NewBuilder(config)
 
-	build, errs := caco3.ReadBuild(buildFile)
+	ws, errs := caco3.ReadWorkspace(workspaceFile)
 	if errs != nil {
 		printErrs(errs)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
-	var sums *caco3.BuildSums
+	var sums *caco3.RepoSums
 	if !*pull {
-		s, err := caco3.ReadBuildSums(buildSumsFile)
+		s, err := caco3.ReadRepoSums(sumsFile)
 		if err != nil {
 			return errcode.Annotate(err, "read build sums")
 		}
 		sums = s
 	}
 
-	newSums, err := b.SyncRepos(build, sums)
+	newSums, err := b.SyncRepos(ws, sums)
 	if err != nil {
 		return err
 	}
 	if *save {
-		if err := caco3.SaveBuildSums(buildSumsFile, newSums); err != nil {
+		if err := caco3.SaveRepoSums(sumsFile, newSums); err != nil {
 			return errcode.Annotate(err, "save build sums")
 		}
 	}

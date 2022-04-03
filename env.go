@@ -25,7 +25,9 @@ import (
 )
 
 type env struct {
-	dock     *dock.Client
+	dock *dock.Client
+	root string
+
 	srcDir   string
 	goSrcDir string
 	outDir   string

@@ -154,19 +154,19 @@ func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 	}, nil
 }
 
-func syncRepos(env *env, b *Build, sums *BuildSums) (*BuildSums, error) {
+func syncRepos(env *env, ws *Workspace, sums *RepoSums) (*RepoSums, error) {
 	var dirs []string
-	for dir := range b.Repos {
+	for dir := range ws.Repos {
 		dirs = append(dirs, dir)
 	}
 	sort.Strings(dirs)
 
-	curSums := &BuildSums{
+	curSums := &RepoSums{
 		RepoCommits: make(map[string]string),
 	}
 
 	for _, dir := range dirs {
-		git := b.Repos[dir]
+		git := ws.Repos[dir]
 		srcDir := env.src(dir)
 		if err := os.MkdirAll(srcDir, 0755); err != nil {
 			return nil, errcode.Annotatef(err, "make dir for %q", dir)

@@ -20,9 +20,9 @@ import (
 	"shanhu.io/text/lexing"
 )
 
-// Build is the structure of the build.jsonx file. It specifies how
+// Workspace is the structure of the build.jsonx file. It specifies how
 // to build a project.
-type Build struct {
+type Workspace struct {
 	Repos          map[string]string
 	Steps          []*BuildStep `json:",omitempty"`
 	DockerSaveName bool         `json:",omitempty"`
@@ -61,8 +61,8 @@ type DockerPull struct {
 	Sums   map[string]string `json:",omitempty"`
 }
 
-// ReadBuild reads in a build manifest.
-func ReadBuild(f string) (*Build, []*lexing.Error) {
+// ReadWorkspace reads in the workspace manifest.
+func ReadWorkspace(f string) (*Workspace, []*lexing.Error) {
 	tm := func(t string) interface{} {
 		switch t {
 		case "repo_map":
@@ -79,35 +79,35 @@ func ReadBuild(f string) (*Build, []*lexing.Error) {
 		return nil, errs
 	}
 
-	b := new(Build)
+	ws := new(Workspace)
 	for _, entry := range entries {
 		switch v := entry.V.(type) {
 		case *BuildStep:
-			b.Steps = append(b.Steps, v)
+			ws.Steps = append(ws.Steps, v)
 		case *BuildOptions:
-			b.DockerSaveName = v.DockerSaveName
+			ws.DockerSaveName = v.DockerSaveName
 		case *RepoMap:
-			b.Repos = v.Map
+			ws.Repos = v.Map
 		}
 	}
-	return b, nil
+	return ws, nil
 }
 
-// BuildSums records the checkums and git commits of a build.
-type BuildSums struct {
+// RepoSums records the checkums and git commits of a build.
+type RepoSums struct {
 	RepoCommits map[string]string
 }
 
-// ReadBuildSums reads in the build's checksum file.
-func ReadBuildSums(f string) (*BuildSums, error) {
-	b := new(BuildSums)
+// ReadRepoSums reads in the workspaces's repo checksum file.
+func ReadRepoSums(f string) (*RepoSums, error) {
+	b := new(RepoSums)
 	if err := jsonx.ReadFile(f, b); err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-// SaveBuildSums saves sums to f.
-func SaveBuildSums(f string, sums *BuildSums) error {
+// SaveRepoSums saves sums to f.
+func SaveRepoSums(f string, sums *RepoSums) error {
 	return jsonx.WriteFile(f, sums)
 }

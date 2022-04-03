@@ -138,8 +138,8 @@ func (b *Builder) GOPATH() string { return b.env.gopath() }
 
 // SyncRepos synchronizes the repositories. When sums is nil, it pulls
 // from the latest HEAD.
-func (b *Builder) SyncRepos(build *Build, sums *BuildSums) (
-	*BuildSums, error,
+func (b *Builder) SyncRepos(ws *Workspace, sums *RepoSums) (
+	*RepoSums, error,
 ) {
-	return syncRepos(b.env, build, sums)
+	return syncRepos(b.env, ws, sums)
 }
