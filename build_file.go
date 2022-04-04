@@ -77,6 +77,13 @@ func readBuildFile(env *env, p string) ([]*buildNode, []*lexing.Error) {
 				continue
 			}
 			node.rule = dp
+		case *DockerBuild:
+			db, err := newDockerBuild(env, p, v)
+			if err != nil {
+				errList.Add(&lexing.Error{Pos: r.Pos, Err: err})
+				continue
+			}
+			node.rule = db
 		case *Bundle:
 			node.rule = newBundle(env, p, v)
 		default:
