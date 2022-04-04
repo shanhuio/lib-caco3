@@ -21,6 +21,7 @@ const (
 	ruleDockerPull  = "docker_pull"
 	ruleDockerBuild = "docker_build"
 	ruleDockerRun   = "docker_run"
+	ruleDownload    = "download"
 )
 
 // FileSet selects a set of files.
@@ -79,4 +80,12 @@ type DockerRun struct {
 	Command []string `json:",omitempty"`
 
 	Output map[string]string `json:",omitempty"`
+}
+
+// Download is a rule to download an artifact from the Internet.
+type Download struct {
+	Name     string
+	URL      string
+	Checksum string
+	Output   string
 }

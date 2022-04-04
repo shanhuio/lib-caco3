@@ -69,7 +69,7 @@ func (s *golangSource) downloadTo(f string) error {
 	}
 
 	req := &http.Request{
-		Method: "GET",
+		Method: http.MethodGet,
 		URL:    u,
 	}
 
