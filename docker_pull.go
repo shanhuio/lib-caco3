@@ -30,8 +30,6 @@ type dockerPull struct {
 	out     string
 }
 
-func dockerPullOut(name string) string { return name + ".dockersum" }
-
 func newDockerPull(env *env, p string, r *DockerPull) (*dockerPull, error) {
 	name := makeRelPath(p, r.Name)
 	repoTag, err := env.nameToRepoTag(name)
@@ -42,7 +40,7 @@ func newDockerPull(env *env, p string, r *DockerPull) (*dockerPull, error) {
 		name:    name,
 		rule:    r,
 		repoTag: repoTag,
-		out:     dockerPullOut(name),
+		out:     dockerSumOut(name),
 	}, nil
 }
 
@@ -96,16 +94,16 @@ func (p *dockerPull) pull(env *env) (*dockerSum, error) {
 }
 
 func (p *dockerPull) build(env *env, opts *buildOpts) error {
-	sums, err := p.pull(env)
+	sum, err := p.pull(env)
 	if err != nil {
 		return err
 	}
 	out, err := env.prepareOut(p.out)
 	if err != nil {
-		return errcode.Annotate(err, "prepare sums output")
+		return errcode.Annotate(err, "prepare sum output")
 	}
-	if err := jsonutil.WriteFile(out, sums); err != nil {
-		return errcode.Annotate(err, "write sums")
+	if err := jsonutil.WriteFile(out, sum); err != nil {
+		return errcode.Annotate(err, "write image sum")
 	}
 	return nil
 }

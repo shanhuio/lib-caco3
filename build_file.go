@@ -32,6 +32,8 @@ func makeBuildFileNode(t string) interface{} {
 		return new(Bundle)
 	case ruleDockerPull:
 		return new(DockerPull)
+	case ruleDockerBuild:
+		return new(DockerBuild)
 	}
 	return nil
 }

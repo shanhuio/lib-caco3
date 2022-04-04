@@ -16,42 +16,25 @@
 package caco3
 
 import (
+	"os"
 	"strings"
-
-	"shanhu.io/virgo/dock"
 )
 
-type dockerSum struct {
-	ID     string
-	Digest string
-}
+func makeDockerVars(envs []string) map[string]string {
+	m := make(map[string]string)
 
-func newDockerSum(info *dock.ImageInfo, repo, prefer string) *dockerSum {
-	sum := &dockerSum{ID: info.ID}
+	for _, envVar := range envs {
+		k, v, found := strings.Cut(envVar, "=")
+		if found {
+			m[k] = v
+			continue
+		}
 
-	var digests []string
-	foundPrefered := false
-	if repo != "" {
-		digestPrefix := repo + "@"
-		for _, d := range info.RepoDigests {
-			if strings.HasPrefix(d, digestPrefix) {
-				d = strings.TrimPrefix(d, digestPrefix)
-				if d == prefer {
-					foundPrefered = true
-					break
-				}
-				digests = append(digests, d)
-			}
+		v, ok := os.LookupEnv(envVar)
+		if ok {
+			m[envVar] = v
 		}
 	}
 
-	if foundPrefered {
-		sum.Digest = prefer
-	} else if len(digests) > 0 {
-		sum.Digest = digests[0]
-	}
-
-	return sum
+	return m
 }
-
-func dockerSumOut(name string) string { return name + ".dockersum" }

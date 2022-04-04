@@ -107,3 +107,14 @@ func (e *env) nameToRepoTag(name string) (string, error) {
 	}
 	return name, nil
 }
+
+func (e *env) imageRepoRule(repo string) (string, error) {
+	if strings.HasPrefix(repo, dockersPrefix) {
+		return "", fmt.Errorf("repo has dockers/ prefix: %q", repo)
+	}
+	if strings.HasPrefix(repo, e.crPrefix) {
+		base := strings.TrimPrefix(repo, e.crPrefix)
+		return dockersPrefix + base, nil
+	}
+	return repo, nil
+}

@@ -153,16 +153,14 @@ func (fs *fileSet) meta(env *env) (*buildRuleMeta, error) {
 	}, nil
 }
 
-func referenceFileSet(env *env, name string) (string, error) {
-	if t := env.nodeType(name); t == nodeRule {
-		if rt := env.ruleType(name); rt != ruleFileSet {
-			return "", fmt.Errorf("not a file set, but %q", rt)
-		}
-		return fileSetOut(name), nil
-	} else if t != nodeOut {
+func referenceFileSetOut(env *env, name string) (string, error) {
+	if t := env.nodeType(name); t != nodeRule {
 		return "", fmt.Errorf("not a file set, but %q", t)
 	}
-	return name, nil
+	if rt := env.ruleType(name); rt != ruleFileSet {
+		return "", fmt.Errorf("not a file set, but %q", rt)
+	}
+	return fileSetOut(name), nil
 }
 
 func (fs *fileSet) build(env *env, opts *buildOpts) error {
@@ -197,13 +195,13 @@ func (fs *fileSet) build(env *env, opts *buildOpts) error {
 	}
 
 	for _, inc := range fs.includes {
-		ref, err := referenceFileSet(env, inc)
+		fileSet, err := referenceFileSetOut(env, inc)
 		if err != nil {
 			return errcode.Annotatef(err, "include %q", inc)
 		}
 
 		var list []*fileStat
-		if err := jsonutil.ReadFile(env.out(ref), &list); err != nil {
+		if err := jsonutil.ReadFile(env.out(fileSet), &list); err != nil {
 			return errcode.Annotatef(err, "read file set %q", inc)
 		}
 		for _, entry := range list {
