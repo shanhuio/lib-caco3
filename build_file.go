@@ -36,6 +36,8 @@ func makeBuildFileNode(t string) interface{} {
 		return new(DockerBuild)
 	case ruleDockerRun:
 		return new(DockerRun)
+	case ruleDownload:
+		return new(Download)
 	}
 	return nil
 }
@@ -88,6 +90,13 @@ func readBuildFile(env *env, p string) ([]*buildNode, []*lexing.Error) {
 			node.rule = db
 		case *DockerRun:
 			node.rule = newDockerRun(env, p, v)
+		case *Download:
+			d, err := newDownload(env, p, v)
+			if err != nil {
+				errList.Add(&lexing.Error{Pos: r.Pos, Err: err})
+				continue
+			}
+			node.rule = d
 		case *Bundle:
 			node.rule = newBundle(env, p, v)
 		default:
