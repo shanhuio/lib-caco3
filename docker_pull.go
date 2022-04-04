@@ -83,10 +83,10 @@ func (p *dockerPull) pull(env *env) (*dockerSum, error) {
 
 	sum := newDockerSum(info, srcRepo, digest)
 	if sum.Digest == "" {
-		return nil, fmt.Errorf("no digest found for %q", out)
+		return nil, errcode.Internalf("no digest found for %q", out)
 	}
 	if digest != "" && sum.Digest != digest {
-		return nil, fmt.Errorf(
+		return nil, errcode.Internalf(
 			"digest mismatch, got %q, want %q", sum.Digest, digest,
 		)
 	}

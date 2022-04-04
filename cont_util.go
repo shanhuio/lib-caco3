@@ -16,9 +16,9 @@
 package caco3
 
 import (
-	"fmt"
 	"path"
 
+	"shanhu.io/misc/errcode"
 	"shanhu.io/virgo/dock"
 )
 
@@ -26,7 +26,7 @@ func exitError(exit int) error {
 	if exit == 0 {
 		return nil
 	}
-	return fmt.Errorf("exit with code: %d", exit)
+	return errcode.Internalf("exit with code: %d", exit)
 }
 
 func execError(ret int, err error) error {

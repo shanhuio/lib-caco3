@@ -16,7 +16,6 @@
 package caco3
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -191,7 +190,7 @@ func (b *Builder) buildNode(ctx *buildContext, n *buildNode) (
 	for _, dep := range n.deps {
 		depNode := ctx.nodes[dep]
 		if depNode == nil {
-			return "", fmt.Errorf(
+			return "", errcode.InvalidArgf(
 				"dep %q for %q not found", dep, n.name,
 			)
 		}

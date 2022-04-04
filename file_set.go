@@ -16,7 +16,6 @@
 package caco3
 
 import (
-	"fmt"
 	"io/fs"
 	"log"
 	"path"
@@ -108,7 +107,7 @@ func newFileSet(env *env, p string, r *FileSet) (*fileSet, error) {
 			matches = glob
 		}
 		if len(matches) == 0 {
-			return nil, fmt.Errorf("%q select no files", sel)
+			return nil, errcode.InvalidArgf("%q select no files", sel)
 		}
 
 		for _, match := range matches {
@@ -155,10 +154,10 @@ func (fs *fileSet) meta(env *env) (*buildRuleMeta, error) {
 
 func referenceFileSetOut(env *env, name string) (string, error) {
 	if t := env.nodeType(name); t != nodeRule {
-		return "", fmt.Errorf("not a file set, but %q", t)
+		return "", errcode.Internalf("not a file set, but %q", t)
 	}
 	if rt := env.ruleType(name); rt != ruleFileSet {
-		return "", fmt.Errorf("not a file set, but %q", rt)
+		return "", errcode.Internalf("not a file set, but %q", rt)
 	}
 	return fileSetOut(name), nil
 }
@@ -176,7 +175,7 @@ func (fs *fileSet) build(env *env, opts *buildOpts) error {
 		t := env.nodeType(f)
 		switch t {
 		case "":
-			return fmt.Errorf("file %q not found", f)
+			return errcode.NotFoundf("file %q not found", f)
 		case nodeSrc:
 			s, err := newSrcFileStat(env, f)
 			if err != nil {
@@ -190,7 +189,7 @@ func (fs *fileSet) build(env *env, opts *buildOpts) error {
 			}
 			add(s)
 		default:
-			return fmt.Errorf("unsupported file type %q", t)
+			return errcode.Internalf("unsupported file type %q", t)
 		}
 	}
 

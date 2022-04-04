@@ -20,6 +20,7 @@ const (
 	ruleBundle      = "bundle"
 	ruleDockerPull  = "docker_pull"
 	ruleDockerBuild = "docker_build"
+	ruleDockerRun   = "docker_run"
 )
 
 // FileSet selects a set of files.
@@ -64,4 +65,18 @@ type DockerBuild struct {
 	Input      []string `json:",omitempty"`
 	PrefixDir  string   `json:",omitempty"`
 	Args       []string `json:",omitempty"`
+}
+
+// DockerRun is a rule to run a command inside a docker container image.
+type DockerRun struct {
+	Name    string
+	Deps    []string `json:",omitempty"`
+	Image   string
+	User    string   `json:",omitempty"`
+	Envs    []string `json:",omitempty"`
+	WorkDir string   `json:",omitempty"`
+
+	Command []string `json:",omitempty"`
+
+	Output map[string]string `json:",omitempty"`
 }

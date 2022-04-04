@@ -16,9 +16,9 @@
 package caco3
 
 import (
-	"fmt"
 	"runtime"
 
+	"shanhu.io/misc/errcode"
 	"shanhu.io/virgo/dock"
 )
 
@@ -79,7 +79,7 @@ func (g *golang) build(d *dock.Client, source *golangSource) error {
 		return err
 	}
 	if exit != 0 {
-		return fmt.Errorf("exit value: %d", exit)
+		return errcode.Internalf("exit value: %d", exit)
 	}
 
 	// clean up useless stuff

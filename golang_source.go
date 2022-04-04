@@ -90,7 +90,9 @@ func (s *golangSource) downloadTo(f string) error {
 	}
 
 	if h != s.SHA256 {
-		return fmt.Errorf("incorrect sha256, want %s, got %s", s.SHA256, h)
+		return errcode.Internalf(
+			"incorrect sha256, want %s, got %s", s.SHA256, h,
+		)
 	}
 	return nil
 }

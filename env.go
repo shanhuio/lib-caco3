@@ -16,12 +16,12 @@
 package caco3
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"shanhu.io/misc/errcode"
 	"shanhu.io/virgo/dock"
 )
 
@@ -99,7 +99,7 @@ func (e *env) dockerName(s string) string {
 
 func (e *env) nameToRepoTag(name string) (string, error) {
 	if strings.HasPrefix(name, e.crPrefix) {
-		return "", fmt.Errorf("name has registry prefix: %q", name)
+		return "", errcode.InvalidArgf("name has registry prefix: %q", name)
 	}
 	if strings.HasPrefix(name, dockersPrefix) {
 		base := strings.TrimPrefix(name, dockersPrefix)
@@ -110,7 +110,7 @@ func (e *env) nameToRepoTag(name string) (string, error) {
 
 func (e *env) imageRepoRule(repo string) (string, error) {
 	if strings.HasPrefix(repo, dockersPrefix) {
-		return "", fmt.Errorf("repo has dockers/ prefix: %q", repo)
+		return "", errcode.InvalidArgf("repo has dockers/ prefix: %q", repo)
 	}
 	if strings.HasPrefix(repo, e.crPrefix) {
 		base := strings.TrimPrefix(repo, e.crPrefix)
