@@ -9,12 +9,13 @@ import (
 )
 
 type dockerRun struct {
-	name  string
-	rule  *DockerRun
-	image string
-	deps  []string
-	outs  []string
-	envs  map[string]string
+	name   string
+	rule   *DockerRun
+	image  string
+	deps   []string
+	outs   []string
+	outMap map[string]string
+	envs   map[string]string
 }
 
 func newDockerRun(env *env, p string, r *DockerRun) *dockerRun {
@@ -22,24 +23,29 @@ func newDockerRun(env *env, p string, r *DockerRun) *dockerRun {
 
 	image := makePath(p, r.Image)
 	var deps []string
+	deps = append(deps, image)
 	for _, d := range r.Deps {
 		deps = append(deps, makePath(p, d))
 	}
 	sort.Strings(deps)
 
 	var outs []string
-	for f := range r.Output {
-		outs = append(outs, makeRelPath(p, f))
+	outMap := make(map[string]string)
+	for f, v := range r.Output {
+		outPath := makeRelPath(p, f)
+		outs = append(outs, outPath)
+		outMap[outPath] = v
 	}
 	sort.Strings(outs)
 
 	return &dockerRun{
-		name:  name,
-		rule:  r,
-		image: image,
-		deps:  deps,
-		outs:  outs,
-		envs:  makeDockerVars(r.Envs),
+		name:   name,
+		rule:   r,
+		image:  image,
+		deps:   deps,
+		outs:   outs,
+		outMap: outMap,
+		envs:   makeDockerVars(r.Envs),
 	}
 }
 
@@ -96,7 +102,7 @@ func (r *dockerRun) build(env *env, opts *buildOpts) error {
 		return errcode.Annotate(err, "wait container")
 	}
 	for _, out := range r.outs {
-		from := r.rule.Output[out]
+		from := r.outMap[out]
 		to := out
 
 		f, err := env.prepareOut(to)
