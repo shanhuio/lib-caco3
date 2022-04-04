@@ -27,6 +27,7 @@ import (
 
 // Config provide the configuration to start a builder.
 type Config struct {
+	Root  string // Root directory
 	Src   string // Source directory
 	GoSrc string // Alternative golang source directory
 	Out   string // Output directory
@@ -46,6 +47,7 @@ func NewBuilder(workDir string, config *Config) *Builder {
 	env := &env{
 		dock:          dock.NewUnixClient(""),
 		workDir:       workDir,
+		rootDir:       config.Root,
 		srcDir:        config.Src,
 		goSrcDir:      config.GoSrc,
 		outDir:        config.Out,

@@ -27,9 +27,9 @@ import (
 
 type env struct {
 	dock *dock.Client
-	root string
 
 	workDir  string
+	rootDir  string
 	srcDir   string
 	goSrcDir string
 	outDir   string

@@ -16,6 +16,8 @@
 package caco3
 
 import (
+	"path/filepath"
+
 	"shanhu.io/misc/jsonx"
 	"shanhu.io/text/lexing"
 )
@@ -35,7 +37,13 @@ func makeBuildFileNode(t string) interface{} {
 }
 
 func readBuildFile(env *env, p string) ([]*buildNode, []*lexing.Error) {
-	fp := env.src(p, buildFileName)
+	var fp string
+	if p == "" {
+		fp = filepath.Join(env.rootDir, buildFileName)
+	} else {
+		fp = env.src(p, buildFileName)
+	}
+
 	rules, errs := jsonx.ReadSeriesFile(fp, makeBuildFileNode)
 	if errs != nil {
 		return nil, errs
