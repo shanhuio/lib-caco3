@@ -71,7 +71,6 @@ type DockerBuild struct {
 // DockerRun is a rule to run a command inside a docker container image.
 type DockerRun struct {
 	Name    string
-	Deps    []string `json:",omitempty"`
 	Image   string
 	User    string   `json:",omitempty"`
 	Envs    []string `json:",omitempty"`
@@ -79,7 +78,14 @@ type DockerRun struct {
 
 	Command []string `json:",omitempty"`
 
+	// Map from input to file inside the container.
+	Input map[string]string
+
+	// Map from output path to file inside the container.
 	Output map[string]string `json:",omitempty"`
+
+	// Extra dependencies.
+	Deps []string `json:",omitempty"`
 }
 
 // Download is a rule to download an artifact from the Internet.

@@ -227,6 +227,8 @@ func (b *dockerBuild) build(env *env, opts *buildOpts) error {
 				}
 				files[f.Name] = fp
 			}
+		default:
+			return errcode.Internalf("unknown type %q", typ)
 		}
 	}
 

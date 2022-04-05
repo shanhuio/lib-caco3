@@ -53,8 +53,7 @@ func (g *golang) build(d *dock.Client, source *golangSource) error {
 	// install packages
 	if err := dock.RunTasks(c, []string{
 		"apk update",
-		"apk add --no-cache ca-certificates",
-		"apk add --no-cache bash gcc musl-dev openssl go",
+		"apk add --no-cache gcc openssl",
 	}); err != nil {
 		return err
 	}

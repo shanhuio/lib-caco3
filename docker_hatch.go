@@ -24,7 +24,7 @@ const hatchDockerfile = `
 FROM cr.shanhu.io/base/alpine
 MAINTAINER Shanhu Tech Inc.
 
-RUN apk update && apk add musl-dev go
+RUN apk update && apk add musl-dev go bash
 RUN mkdir /hatch
 COPY idle.go /hatch/idle.go
 RUN cd /hatch && go build idle.go
