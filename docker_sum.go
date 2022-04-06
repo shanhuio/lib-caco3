@@ -23,7 +23,7 @@ import (
 
 type dockerSum struct {
 	ID     string
-	Digest string
+	Digest string `json:",omitempty"`
 }
 
 func newDockerSum(info *dock.ImageInfo, repo, prefer string) *dockerSum {
