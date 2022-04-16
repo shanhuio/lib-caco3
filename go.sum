@@ -1,6 +1,6 @@
-shanhu.io/misc v0.0.0-20220402162723-99170f1ef902 h1:1ZwfHHoNXsScTtHrOTeetB0aYEQlDQw6N2httVFWBKU=
-shanhu.io/misc v0.0.0-20220402162723-99170f1ef902/go.mod h1:FFygu0abD8jdbW5ecCd6468zR7qT6bKayxGypEoKULA=
+shanhu.io/misc v0.0.0-20220416024331-a99a86f2db1c h1:rquLO7BjYAwtVFN1dHrfQqKVXQ5dPtD1WNQUiibiupc=
+shanhu.io/misc v0.0.0-20220416024331-a99a86f2db1c/go.mod h1:aABKvPyBlihBeW/S0YQ8VW9ToGUwTMz2zFNu6STUU9c=
 shanhu.io/text v0.0.0-20220403174149-0195ecfdda87 h1:5B5QyUHPdmsKzfhgJjG7LZ3gdIL7NSBAMtL4QCXx07E=
 shanhu.io/text v0.0.0-20220403174149-0195ecfdda87/go.mod h1:CexHuZjVSZj85hsKVcxZq80AMSdJNPFlOD4lSDEEE5g=
-shanhu.io/virgo v0.0.0-20220402162741-b55c57a8dd3d h1:bHn6rXAfoXnPBelq/hjloFVXI6bpPMomFqQ0wylO3wU=
-shanhu.io/virgo v0.0.0-20220402162741-b55c57a8dd3d/go.mod h1:Nci9bSjLfk0yMN6i63IU+7MOFRyvMUMi8qjTo4JGzUo=
+shanhu.io/virgo v0.0.0-20220416001529-bc221b2b6057 h1:rdFldkT2LKKAkSth4LN6kF+EpKzGMILMB/5LsqUOPhU=
+shanhu.io/virgo v0.0.0-20220416001529-bc221b2b6057/go.mod h1:V4UQLC9TrjXkCY6KSuS5Yet3BdCaI2qUXqZbWdnyaW8=
