@@ -20,9 +20,7 @@ import (
 	"strings"
 )
 
-// makeRelPath makes a path that is under p.
-// It cannot escape p.
-// TODO(h8liu): change the function name.
+// makeRelPath makes a path that is under p. It cannot escape p.
 func makeRelPath(p, f string) string {
 	f = path.Clean(path.Join("/", f))
 	return strings.TrimPrefix(path.Join("/", p, f), "/")
