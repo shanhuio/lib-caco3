@@ -17,6 +17,7 @@ package caco3
 
 import (
 	"fmt"
+	"strings"
 
 	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/jsonutil"
@@ -81,18 +82,28 @@ func (p *dockerPull) pull(env *env) (*dockerSum, error) {
 		return nil, errcode.Annotate(err, "inspect image")
 	}
 
-	digestFound := false
-	digestTarget := fmt.Sprintf("%s@%s", srcRepo, digest)
+	var repoDigests []string
+	digestPrefix := srcRepo + "@"
 	for _, digest := range info.RepoDigests {
-		if digest == digestTarget {
-			digestFound = true
-			break
+		if strings.HasPrefix(digest, digestPrefix) {
+			repoDigests = append(repoDigests, digest)
 		}
 	}
-	if !digestFound {
-		return nil, errcode.Internalf(
-			"digest mismatch, got %q, want %q", info.RepoDigests, digestTarget,
-		)
+	if digest != "" {
+		digestWant := digestPrefix + digest
+		found := false
+		for _, digest := range repoDigests {
+			if digest == digestWant {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, errcode.Internalf(
+				"digest mismatch, got %q, want %q",
+				info.RepoDigests, digestWant,
+			)
+		}
 	}
 
 	sum := newDockerSum(repo, tag, info.ID)
