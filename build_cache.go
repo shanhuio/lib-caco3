@@ -21,6 +21,8 @@ import (
 	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/timeutil"
 	"shanhu.io/pisces"
+
+	_ "modernc.org/sqlite" // sqlite db driver
 )
 
 type buildCache struct {
