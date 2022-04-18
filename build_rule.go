@@ -17,8 +17,10 @@ package caco3
 
 type buildRuleMeta struct {
 	name string
-	outs []string
 	deps []string
+	outs []string
+
+	dockerOut bool // Output is a docker container image.
 
 	// digest captures all non-dependency input such as action type, binded
 	// input, external input, etc.  returns empty string if this always needs

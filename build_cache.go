@@ -16,27 +16,79 @@
 package caco3
 
 import (
-	"encoding/json"
 	"time"
 
 	"shanhu.io/misc/errcode"
+	"shanhu.io/misc/timeutil"
+	"shanhu.io/pisces"
 )
 
 type buildCache struct {
+	tables *pisces.Tables
+	cache  *pisces.KV
+	expire time.Duration
+	clock  func() time.Time
 }
 
-type buildOutput struct {
-	Src    *fileStat   `json:",omitempty"` // single source file.
-	Outs   []*fileStat `json:",omitempty"` // Output S
-	Docker *dockerSum  `json:",omitempty"`
-}
-
-func (c *buildCache) put(in string, out *buildOutput, t time.Time) error {
-	bs, err := json.Marshal(out)
+func newBuildCache(f string) (*buildCache, error) {
+	tables, err := pisces.OpenSqlite3Tables(f)
 	if err != nil {
-		return errcode.Annotate(err, "marshal output")
+		return nil, errcode.Annotate(err, "open cache table")
 	}
 
-	_ = bs
-	panic("todo")
+	cache := tables.NewKV("build_cache")
+	if err := tables.CreateMissing(); err != nil {
+		return nil, errcode.Annotate(err, "create cache tables")
+	}
+
+	return &buildCache{
+		expire: time.Hour * 24 * 7,
+		tables: tables,
+		cache:  cache,
+	}, nil
+}
+
+type buildCacheEntry struct {
+	Key        string              `json:"K"`
+	CreateTime *timeutil.Timestamp `json:"T"`
+	Built      *built              `json:"B"`
+}
+
+func (c *buildCache) put(k string, out *built) error {
+	t := timeutil.ReadTime(c.clock)
+	entry := &buildCacheEntry{
+		Key:        k,
+		Built:      out,
+		CreateTime: timeutil.NewTimestamp(t),
+	}
+	return c.cache.Replace(k, entry)
+}
+
+var errNotFoundInCache = errcode.NotFoundf("not found in cache")
+
+func (c *buildCache) get(k string) (*built, error) {
+	entry := new(buildCacheEntry)
+	if err := c.cache.Get(k, entry); err != nil {
+		if errcode.IsNotFound(err) {
+			return nil, errNotFoundInCache
+		}
+		return nil, errcode.Annotate(err, "get from cache")
+	}
+
+	now := timeutil.ReadTime(c.clock)
+	expire := timeutil.Time(entry.CreateTime).Add(c.expire)
+	if now.Before(expire) {
+		return entry.Built, nil
+	}
+	return nil, errNotFoundInCache
+}
+
+func (c *buildCache) remove(k string) error {
+	if err := c.cache.Remove(k); err != nil {
+		if errcode.IsNotFound(err) {
+			return nil
+		}
+		return err
+	}
+	return nil
 }

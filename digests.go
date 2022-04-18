@@ -30,7 +30,11 @@ import (
 type buildAction struct {
 	Rule     string `json:",omitempty"` // Digest of the rule functor.
 	RuleType string `json:",omitempty"`
-	Deps     map[string]string
+
+	// Map of dependency names to their digiests.
+	Deps map[string]string `json:",omitempty"`
+
+	OutputOf string `json:",omitempty"` // Get the output from a rule.
 }
 
 func makeDigest(t, name string, v interface{}) (string, error) {

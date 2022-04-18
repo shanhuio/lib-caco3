@@ -19,6 +19,8 @@ type buildContext struct {
 	nodes map[string]*buildNode
 
 	built map[string]string // mapping to digests
+
+	cache *buildCache
 }
 
 func (c *buildContext) nodeType(n string) string {

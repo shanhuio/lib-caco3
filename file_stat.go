@@ -17,6 +17,8 @@ package caco3
 
 import (
 	"os"
+
+	"shanhu.io/misc/errcode"
 )
 
 type fileStat struct {
@@ -50,6 +52,9 @@ func newFileStat(env *env, p, t string) (*fileStat, error) {
 
 	info, err := os.Lstat(f)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, errcode.NotFoundf("%s:%s not found", t, p)
+		}
 		return nil, err
 	}
 
@@ -60,4 +65,20 @@ func newFileStat(env *env, p, t string) (*fileStat, error) {
 		ModTimestamp: info.ModTime().UnixNano(),
 		Mode:         uint32(info.Mode()),
 	}, nil
+}
+
+func sameFileStat(env *env, stat *fileStat) (bool, error) {
+	cur, err := newFileStat(env, stat.Name, stat.Type)
+	if err != nil {
+		if errcode.IsNotFound(err) {
+			return false, nil
+		}
+		return false, errcode.Annotate(err, "check current")
+	}
+
+	same := cur.Size == stat.Size
+	same = same && cur.ModTimestamp == stat.ModTimestamp
+	same = same && cur.Mode == stat.Mode
+
+	return same, nil
 }

@@ -16,6 +16,7 @@
 package caco3
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -56,9 +57,7 @@ func NewBuilder(workDir string, config *Config) *Builder {
 		sshKnownHosts: config.SSHKnownHosts,
 	}
 
-	return &Builder{
-		env: env,
-	}
+	return &Builder{env: env}
 }
 
 func (b *Builder) buildBase(dockers []*baseDocker) error {
@@ -155,7 +154,17 @@ func (b *Builder) Build(rules []string) []*lexing.Error {
 	if errs != nil {
 		return errs
 	}
-	ctx := &buildContext{nodes: nodeMap, built: make(map[string]string)}
+	cache, err := newBuildCache(b.env.out("CACHE"))
+	if err != nil {
+		err := errcode.Annotate(err, "create build cache")
+		return lexing.SingleErr(err)
+	}
+
+	ctx := &buildContext{
+		nodes: nodeMap,
+		built: make(map[string]string),
+		cache: cache,
+	}
 	return b.buildNodes(ctx, nodes)
 }
 
@@ -208,56 +217,56 @@ func (b *Builder) buildNode(ctx *buildContext, n *buildNode) (
 	}
 
 	if deps != nil { // Not always rebuilding, so calculate the digest
-		switch n.typ {
-		case nodeRule:
-			action := &buildAction{
-				Deps:     deps,
-				RuleType: n.ruleType,
-			}
-			if meta := n.ruleMeta; meta != nil {
-				if meta.digest == "" {
-					break
-				}
-				action.Rule = meta.digest
-			}
-			d, err := makeDigest("build_action", "", action)
-			if err != nil {
-				return "", errcode.Annotate(err, "digest build action")
-			}
-			digest = d
-		case nodeSrc:
-			stat, err := newSrcFileStat(b.env, n.name)
-			if err != nil {
-				return "", errcode.Annotatef(err, "stat file %q", n.name)
-			}
-			d, err := makeDigest("src", "", stat)
-			if err != nil {
-				return "", errcode.Annotate(err, "digest source file")
-			}
-			digest = d
-		case nodeOut:
-			// TODO(h8liu): load output origin digest
+		d, err := buildNodeDigest(b.env, n, deps)
+		if err != nil {
+			return "", errcode.Annotate(err, "digest")
 		}
+		digest = d
 	}
 
+	outputChanged := true
 	if digest != "" {
-		// TODO(h8liu): check build cache here
-	}
-
-	if n.rule != nil {
-		if n.typ == nodeRule {
-			log.Printf("BUILD %s", n.name)
-			// TODO(h8liu): better opts
-			opts := &buildOpts{
-				log: os.Stderr,
-				docker: &dockerOpts{
-					useBuildCache: true,
-				},
+		built, err := ctx.cache.get(digest)
+		if err != nil {
+			if !errors.Is(err, errNotFoundInCache) {
+				return "", errcode.Annotate(err, "check from build cache")
 			}
-			if err := n.rule.build(b.env, opts); err != nil {
-				return "", errcode.Annotatef(err, "build %s", n.name)
+		} else {
+			same, err := checkSameBuilt(b.env, built)
+			if err != nil {
+				return "", errcode.Annotate(err, "check built")
 			}
+			outputChanged = !same
 		}
 	}
+
+	// Build.
+	if !outputChanged { // Cache hit.
+		return digest, nil
+	}
+	if err := ctx.cache.remove(digest); err != nil {
+		return "", errcode.Annotate(err, "invalidate cache")
+	}
+
+	if n.typ == nodeRule && n.rule != nil {
+		log.Printf("BUILD %s", n.name)
+		// TODO(h8liu): better opts
+		opts := &buildOpts{
+			log:    os.Stderr,
+			docker: &dockerOpts{useBuildCache: true},
+		}
+		if err := n.rule.build(b.env, opts); err != nil {
+			return "", errcode.Annotatef(err, "build %s", n.name)
+		}
+
+		built, err := newBuilt(b.env, n.ruleMeta)
+		if err != nil {
+			return "", errcode.Annotate(err, "make built")
+		}
+		if err := ctx.cache.put(digest, built); err != nil {
+			return "", errcode.Annotate(err, "save in build cache")
+		}
+	}
+
 	return digest, nil
 }

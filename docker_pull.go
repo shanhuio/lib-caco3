@@ -81,15 +81,21 @@ func (p *dockerPull) pull(env *env) (*dockerSum, error) {
 		return nil, errcode.Annotate(err, "inspect image")
 	}
 
-	sum := newDockerSum(info, srcRepo, digest)
-	if sum.Digest == "" {
-		return nil, errcode.Internalf("no digest found for %q", out)
+	digestFound := false
+	digestTarget := fmt.Sprintf("%s@%s", srcRepo, digest)
+	for _, digest := range info.RepoDigests {
+		if digest == digestTarget {
+			digestFound = true
+			break
+		}
 	}
-	if digest != "" && sum.Digest != digest {
+	if !digestFound {
 		return nil, errcode.Internalf(
-			"digest mismatch, got %q, want %q", sum.Digest, digest,
+			"digest mismatch, got %q, want %q", info.RepoDigests, digestTarget,
 		)
 	}
+
+	sum := newDockerSum(repo, tag, info.ID)
 	return sum, nil
 }
 
@@ -119,8 +125,9 @@ func (p *dockerPull) meta(env *env) (*buildRuleMeta, error) {
 	}
 
 	return &buildRuleMeta{
-		name:   p.name,
-		outs:   []string{p.out},
-		digest: digest,
+		name:      p.name,
+		outs:      []string{p.out},
+		dockerOut: true,
+		digest:    digest,
 	}, nil
 }

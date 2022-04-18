@@ -104,10 +104,11 @@ func (b *dockerBuild) meta(env *env) (*buildRuleMeta, error) {
 	deps = append(deps, b.inputs...)
 
 	return &buildRuleMeta{
-		name:   b.name,
-		deps:   deps,
-		outs:   []string{b.out},
-		digest: digest,
+		name:      b.name,
+		deps:      deps,
+		outs:      []string{b.out},
+		dockerOut: true,
+		digest:    digest,
 	}, nil
 }
 
@@ -208,7 +209,7 @@ func (b *dockerBuild) build(env *env, opts *buildOpts) error {
 		return errcode.Annotate(err, "inspect built image")
 	}
 
-	sum := newDockerSum(info, repo, "")
+	sum := newDockerSum(repo, tag, info.ID)
 
 	out, err := env.prepareOut(b.out)
 	if err != nil {

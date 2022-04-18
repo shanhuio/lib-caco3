@@ -16,42 +16,29 @@
 package caco3
 
 import (
-	"strings"
-
-	"shanhu.io/virgo/dock"
+	"shanhu.io/misc/jsonutil"
 )
 
 type dockerSum struct {
-	ID     string
-	Digest string `json:",omitempty"`
+	Repo string
+	Tag  string
+	ID   string
 }
 
-func newDockerSum(info *dock.ImageInfo, repo, prefer string) *dockerSum {
-	sum := &dockerSum{ID: info.ID}
-
-	var digests []string
-	foundPrefered := false
-	if repo != "" {
-		digestPrefix := repo + "@"
-		for _, d := range info.RepoDigests {
-			if strings.HasPrefix(d, digestPrefix) {
-				d = strings.TrimPrefix(d, digestPrefix)
-				if d == prefer {
-					foundPrefered = true
-					break
-				}
-				digests = append(digests, d)
-			}
-		}
+func newDockerSum(repo, tag, id string) *dockerSum {
+	return &dockerSum{
+		Repo: repo,
+		Tag:  tag,
+		ID:   id,
 	}
-
-	if foundPrefered {
-		sum.Digest = prefer
-	} else if len(digests) > 0 {
-		sum.Digest = digests[0]
-	}
-
-	return sum
 }
 
 func dockerSumOut(name string) string { return name + ".dockersum" }
+
+func loadDockerSum(f string) (*dockerSum, error) {
+	sum := new(dockerSum)
+	if err := jsonutil.ReadFile(f, sum); err != nil {
+		return nil, err
+	}
+	return sum, nil
+}
