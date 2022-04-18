@@ -68,6 +68,9 @@ func checkSameBuilt(env *env, b *built) (bool, error) {
 		repoTag := repoTag(d.Repo, d.Tag)
 		info, err := dock.InspectImage(env.dock, repoTag)
 		if err != nil {
+			if errcode.IsNotFound(err) {
+				return false, nil // Image not found.
+			}
 			return false, errcode.Annotatef(err, "inspect docker %s", repoTag)
 		}
 		if info.ID != d.ID {
