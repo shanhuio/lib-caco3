@@ -19,6 +19,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 
 	"shanhu.io/caco3"
 	"shanhu.io/misc/errcode"
@@ -152,6 +153,13 @@ func cmdBuild2(args []string) error {
 	if err != nil {
 		return errcode.Annotate(err, "get work dir")
 	}
+	root, err := filepath.Abs(config.Root)
+	if err != nil {
+		return errcode.Annotate(err, "get abs root dir")
+	}
+	config.Root = root
+	config.Src = filepath.Join(root, "src")
+	config.Out = filepath.Join(root, "out")
 
 	b := caco3.NewBuilder(wd, config)
 
