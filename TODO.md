@@ -36,18 +36,18 @@ shanhu.io
 - which is a bit tedious, but is is 
 
 ````
-current					changed				github				golang
+current					changed				github				golang/npm
 core/caco3-base			lib/dockers			lib-dockers
 core/caco3				lib/caco3			lib-caco3			shanhu.io/caco3
 core/misc				lib/misc			lib-misc            shanhu.io/misc
 core/pisces				lib/pisces			lib-pisces          shanhu.io/pisces
 core/aries				lib/aries			lib-aries           shanhu.io/aries
-core/htmlgen-ts			lib/htmlgen-ts		lib-htmlgen-ts
-core/misc-ts			lib/misc-ts			lib-misc-ts
+core/htmlgen-ts			lib/htmlgen-ts		lib-htmlgen-ts		@shanhuio/htmlgen
+core/misc-ts			lib/misc-ts			lib-misc-ts			@shanhuio/misc
 core/text				lib/text			lib-text
 core/dags               lib/dags            lib-dags
-core/dags-ts			lib/dags-ts			lib-dags-ts
-core/lessbase			lib/style-ts		lib-style-ts
+core/dags-ts			lib/dags-ts			lib-dags-ts			@shanhuio/dags
+core/lessbase			lib/style-ts		lib-style-ts		@shanhuio/style
 
 homedrv/homedrv-ts 		homedrv/site-ts
 homedrv/homedrv			homedrv/drv			homedrv-drv
@@ -59,14 +59,14 @@ homedrv/homedrv-docs	homedrv/docs		homedrv-docs
 						homedrv/core
 
 smlrepo/smlrepo			smlrepo/core
-smlrepo/sml				smlrepo/sml
-smlrepo/smlrepo-ts		smlrepo/site-ts
-smlrepo/dagvis-ts		smlrepo/dagvis-ts
+smlrepo/sml				smlrepo/sml         
+smlrepo/smlrepo-ts		smlrepo/site-ts     @shanhuio/smlrepo-site
+smlrepo/dagvis-ts		smlrepo/dagvis-ts   @shanhuio/smlrepo-dagvis
 smlrepo/tools			smlrepo/tools
 
 smlvm/smlg				smlvm/site
 smlvm/smlvm				smlvm/vm
-smlvm/smlg-ts			smlvm/site-ts
+smlvm/smlg-ts			smlvm/site-ts       @shanhuio/smlvm-site
 smlvm/smldriod			smlvm/droid
 smlvm/smlos				smlvm/os
 smlvm/smlhome			smlvm/gbase

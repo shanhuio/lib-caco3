@@ -23,14 +23,15 @@ import (
 // Workspace is the structure of the build.jsonx file. It specifies how
 // to build a project.
 type Workspace struct {
-	Repos          map[string]string
+	RepoMap        *RepoMap
 	Steps          []*BuildStep `json:",omitempty"`
 	DockerSaveName bool         `json:",omitempty"`
 }
 
 // RepoMap contains the list of repos to clone down.
 type RepoMap struct {
-	Map map[string]string
+	GitHosting string `json:",omitempty"`
+	Map        map[string]string
 }
 
 // BuildOptions contains the options to for the entire build.
@@ -87,7 +88,7 @@ func ReadWorkspace(f string) (*Workspace, []*lexing.Error) {
 		case *BuildOptions:
 			ws.DockerSaveName = v.DockerSaveName
 		case *RepoMap:
-			ws.Repos = v.Map
+			ws.RepoMap = v
 		}
 	}
 	return ws, nil

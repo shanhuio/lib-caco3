@@ -17,6 +17,7 @@ package caco3
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -155,18 +156,32 @@ func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 }
 
 func syncRepos(env *env, ws *Workspace, sums *RepoSums) (*RepoSums, error) {
+
 	var dirs []string
-	for dir := range ws.Repos {
+	for dir := range ws.RepoMap.Map {
 		dirs = append(dirs, dir)
 	}
 	sort.Strings(dirs)
+
+	gitHosting := ws.RepoMap.GitHosting
+	if gitHosting == "" {
+		gitHosting = "github.com"
+	}
+	repos := make(map[string]string)
+	for _, dir := range dirs {
+		repo := ws.RepoMap.Map[dir]
+		if repo == "" {
+			repo = fmt.Sprintf("git@%s:%s.git", gitHosting, dir)
+		}
+		repos[dir] = repo
+	}
 
 	curSums := &RepoSums{
 		RepoCommits: make(map[string]string),
 	}
 
 	for _, dir := range dirs {
-		git := ws.Repos[dir]
+		git := repos[dir]
 		srcDir := env.src(dir)
 		if err := os.MkdirAll(srcDir, 0755); err != nil {
 			return nil, errcode.Annotatef(err, "make dir for %q", dir)
