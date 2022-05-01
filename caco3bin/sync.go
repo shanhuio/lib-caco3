@@ -42,7 +42,7 @@ func cmdSync(args []string) error {
 
 	if _, errs := b.ReadWorkspace(); errs != nil {
 		lexing.FprintErrs(os.Stderr, errs, wd)
-		return errcode.InvalidArgf("read build got %d errors", len(errs))
+		return errcode.InvalidArgf("read workspace got %d errors", len(errs))
 	}
 	var sums *caco3.RepoSums
 	if !*pull {

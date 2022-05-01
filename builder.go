@@ -164,6 +164,7 @@ func (b *Builder) SyncRepos(sums *RepoSums) (*RepoSums, error) {
 
 // Build builds the given rules.
 func (b *Builder) Build(rules []string) []*lexing.Error {
+
 	nodes, nodeMap, errs := loadNodes(b.env, rules)
 	if errs != nil {
 		return errs

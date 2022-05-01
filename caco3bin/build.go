@@ -154,6 +154,12 @@ func cmdBuild2(args []string) error {
 	}
 
 	b := caco3.NewBuilder(wd, config)
+
+	if _, errs := b.ReadWorkspace(); errs != nil {
+		lexing.FprintErrs(os.Stderr, errs, wd)
+		return errcode.InvalidArgf("read workspace got %d errors", len(errs))
+	}
+
 	if errs := b.Build(args); errs != nil {
 		lexing.FprintErrs(os.Stderr, errs, wd)
 		return errcode.InvalidArgf("build got %d errors", len(errs))

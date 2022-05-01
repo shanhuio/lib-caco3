@@ -16,6 +16,9 @@
 package caco3
 
 import (
+	"sort"
+
+	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/osutil"
 	"shanhu.io/text/lexing"
 )
@@ -150,7 +153,20 @@ func loadNodes(env *env, names []string) (
 ) {
 	l := newLoader(env)
 
-	l.readBuildFile("")
+	repoMap := env.workspace.RepoMap
+	if repoMap == nil || len(repoMap.Map) == 0 {
+		err := errcode.InvalidArgf("repo map missing")
+		return nil, nil, lexing.SingleErr(err)
+	}
+	var dirs []string
+	for dir := range repoMap.Map {
+		dirs = append(dirs, dir)
+	}
+	sort.Strings(dirs)
+
+	for _, dir := range dirs {
+		l.readBuildFile(dir)
+	}
 
 	if errs := l.Errs(); errs != nil {
 		return nil, nil, errs

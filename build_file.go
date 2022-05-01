@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 
 	"shanhu.io/misc/jsonx"
+	"shanhu.io/misc/osutil"
 	"shanhu.io/text/lexing"
 )
 
@@ -48,6 +49,12 @@ func readBuildFile(env *env, p string) ([]*buildNode, []*lexing.Error) {
 		fp = filepath.Join(env.rootDir, buildFileName)
 	} else {
 		fp = env.src(p, buildFileName)
+	}
+
+	if ok, err := osutil.IsRegular(fp); err != nil {
+		return nil, lexing.SingleErr(err)
+	} else if !ok {
+		return nil, nil // No build file present.
 	}
 
 	rules, errs := jsonx.ReadSeriesFile(fp, makeBuildFileNode)
