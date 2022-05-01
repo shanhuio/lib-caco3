@@ -103,7 +103,7 @@ func (e *env) dockerName(s string) string {
 
 func (e *env) nameToRepoTag(name string) (string, error) {
 	parts := strings.Split(name, "/")
-	if len(parts) != 0 {
+	if len(parts) == 0 {
 		return "", errcode.InvalidArgf("empty name")
 	}
 	if len(name) != 4 {
