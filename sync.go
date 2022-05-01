@@ -164,14 +164,23 @@ func syncRepos(env *env, ws *Workspace, sums *RepoSums) (*RepoSums, error) {
 	sort.Strings(dirs)
 
 	gitHosting := ws.RepoMap.GitHosting
-	if gitHosting == "" {
-		gitHosting = "github.com"
+	if gitHosting == nil {
+		gitHosting = make(map[string]string)
 	}
 	repos := make(map[string]string)
 	for _, dir := range dirs {
 		repo := ws.RepoMap.Map[dir]
 		if repo == "" {
-			repo = fmt.Sprintf("git@%s:%s.git", gitHosting, dir)
+			domain, p, ok := strings.Cut(dir, "/")
+			if !ok {
+				domain = dir
+				p = ""
+			}
+			gitHost := domain
+			if alt, found := gitHosting[domain]; found {
+				gitHost = alt
+			}
+			repo = fmt.Sprintf("git@%s:%s.git", gitHost, p)
 		}
 		repos[dir] = repo
 	}

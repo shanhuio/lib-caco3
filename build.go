@@ -30,7 +30,7 @@ type Workspace struct {
 
 // RepoMap contains the list of repos to clone down.
 type RepoMap struct {
-	GitHosting string `json:",omitempty"`
+	GitHosting map[string]string `json:",omitempty"`
 	Map        map[string]string
 }
 
