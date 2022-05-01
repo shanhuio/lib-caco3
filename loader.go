@@ -150,9 +150,8 @@ func loadNodes(env *env, names []string) (
 ) {
 	l := newLoader(env)
 
-	// TODO(h8liu): supports dynamically load BUILD files from other
-	// directories.
 	l.readBuildFile("")
+
 	if errs := l.Errs(); errs != nil {
 		return nil, nil, errs
 	}

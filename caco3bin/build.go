@@ -117,16 +117,15 @@ func cmdBuild(args []string) error {
 		return errcode.Annotate(err, "get work dir")
 	}
 
-	ws, errs := caco3.ReadWorkspace(workspaceFile)
+	b := caco3.NewBuilder(wd, config)
+	ws, errs := b.ReadWorkspace()
 	if errs != nil {
 		lexing.FprintErrs(os.Stderr, errs, wd)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
 
 	opts.DockerSaveName = ws.DockerSaveName
-
 	ts := newTargets(ws)
-	b := caco3.NewBuilder(wd, config)
 	if len(args) == 0 {
 		for _, step := range ts.steps {
 			if err := buildStep(b, step, opts); err != nil {

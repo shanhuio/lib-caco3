@@ -42,6 +42,8 @@ type Builder struct {
 	env *env
 }
 
+const workspaceFile = "WORKSPACE.caco3"
+
 // NewBuilder creates a new builder that builds stuff.
 func NewBuilder(workDir string, config *Config) *Builder {
 	env := &env{
@@ -58,6 +60,20 @@ func NewBuilder(workDir string, config *Config) *Builder {
 	}
 
 	return &Builder{env: env}
+}
+
+// ReadWorkspace reads and loads the WORKSPACE file into the build env.
+func (b *Builder) ReadWorkspace() (*Workspace, []*lexing.Error) {
+	if b.env.workspace != nil {
+		return b.env.workspace, nil
+	}
+
+	ws, errs := readWorkspace(b.env.root(workspaceFile))
+	if errs != nil {
+		return nil, errs
+	}
+	b.env.workspace = ws
+	return ws, nil
 }
 
 func (b *Builder) buildBase(dockers []*baseDocker) error {
@@ -142,10 +158,8 @@ func (b *Builder) GOPATH() string { return b.env.gopath() }
 
 // SyncRepos synchronizes the repositories. When sums is nil, it pulls
 // from the latest HEAD.
-func (b *Builder) SyncRepos(ws *Workspace, sums *RepoSums) (
-	*RepoSums, error,
-) {
-	return syncRepos(b.env, ws, sums)
+func (b *Builder) SyncRepos(sums *RepoSums) (*RepoSums, error) {
+	return syncRepos(b.env, sums)
 }
 
 // Build builds the given rules.

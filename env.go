@@ -40,6 +40,8 @@ type env struct {
 	goVersion     string
 	sshKnownHosts string
 
+	workspace *Workspace // Lazily loaded.
+
 	nodeType func(name string) string
 	ruleType func(name string) string
 }
@@ -53,20 +55,24 @@ func (e *env) prepareOut(ps ...string) (string, error) {
 	return p, nil
 }
 
-func (e *env) out(ps ...string) string {
+func dirFilePath(dir string, ps ...string) string {
 	if len(ps) == 0 {
-		return e.outDir
+		return dir
 	}
 	p := path.Join(ps...)
-	return filepath.Join(e.outDir, filepath.FromSlash(p))
+	return filepath.Join(dir, filepath.FromSlash(p))
+}
+
+func (e *env) root(ps ...string) string {
+	return dirFilePath(e.rootDir, ps...)
+}
+
+func (e *env) out(ps ...string) string {
+	return dirFilePath(e.outDir, ps...)
 }
 
 func (e *env) src(ps ...string) string {
-	if len(ps) == 0 {
-		return e.srcDir
-	}
-	p := path.Join(ps...)
-	return filepath.Join(e.srcDir, filepath.FromSlash(p))
+	return dirFilePath(e.srcDir, ps...)
 }
 
 func (e *env) gopath() string { return e.src("go") }

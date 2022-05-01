@@ -62,8 +62,7 @@ type DockerPulls struct {
 	Sums   map[string]string `json:",omitempty"`
 }
 
-// ReadWorkspace reads in the workspace manifest.
-func ReadWorkspace(f string) (*Workspace, []*lexing.Error) {
+func readWorkspace(f string) (*Workspace, []*lexing.Error) {
 	tm := func(t string) interface{} {
 		switch t {
 		case "repo_map":

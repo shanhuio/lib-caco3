@@ -23,7 +23,6 @@ import (
 	"shanhu.io/text/lexing"
 )
 
-const workspaceFile = "WORKSPACE.caco3"
 const sumsFile = "sums.jsonx"
 
 func cmdSync(args []string) error {
@@ -41,8 +40,7 @@ func cmdSync(args []string) error {
 
 	b := caco3.NewBuilder(wd, config)
 
-	ws, errs := caco3.ReadWorkspace(workspaceFile)
-	if errs != nil {
+	if _, errs := b.ReadWorkspace(); errs != nil {
 		lexing.FprintErrs(os.Stderr, errs, wd)
 		return errcode.InvalidArgf("read build got %d errors", len(errs))
 	}
@@ -55,7 +53,7 @@ func cmdSync(args []string) error {
 		sums = s
 	}
 
-	newSums, err := b.SyncRepos(ws, sums)
+	newSums, err := b.SyncRepos(sums)
 	if err != nil {
 		return err
 	}

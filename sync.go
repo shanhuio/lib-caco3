@@ -155,7 +155,8 @@ func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 	}, nil
 }
 
-func syncRepos(env *env, ws *Workspace, sums *RepoSums) (*RepoSums, error) {
+func syncRepos(env *env, sums *RepoSums) (*RepoSums, error) {
+	ws := env.workspace
 
 	var dirs []string
 	for dir := range ws.RepoMap.Map {
