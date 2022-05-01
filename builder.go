@@ -169,7 +169,11 @@ func (b *Builder) Build(rules []string) []*lexing.Error {
 	if errs != nil {
 		return errs
 	}
-	cache, err := newBuildCache(b.env.out("CACHE"))
+	cacheFile, err := b.env.prepareOut("CACHE")
+	if err != nil {
+		return lexing.SingleErr(errcode.Annotate(err, "prepare CACHE"))
+	}
+	cache, err := newBuildCache(cacheFile)
 	if err != nil {
 		err := errcode.Annotate(err, "create build cache")
 		return lexing.SingleErr(err)

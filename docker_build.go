@@ -34,6 +34,7 @@ type dockerBuild struct {
 	fromRules      []string
 	dockerfilePath string
 	inputs         []string
+	prefixDir      string
 	repoTag        string
 	args           map[string]string
 	out            string
@@ -70,12 +71,18 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 		inputMap[makePath(p, input)] = true
 	}
 
+	prefixDir := r.PrefixDir
+	if prefixDir == "." {
+		prefixDir = p
+	}
+
 	return &dockerBuild{
 		name:           name,
 		rule:           r,
 		dockerfilePath: f,
 		fromRules:      fromRules,
 		inputs:         strutil.SortedList(inputMap),
+		prefixDir:      prefixDir,
 		repoTag:        repoTag,
 		args:           args,
 		out:            dockerSumOut(name),
@@ -90,7 +97,7 @@ func (b *dockerBuild) meta(env *env) (*buildRuleMeta, error) {
 	}{
 		Dockerfile: b.dockerfilePath,
 		Args:       b.args,
-		PrefixDir:  b.rule.PrefixDir,
+		PrefixDir:  b.prefixDir,
 	}
 
 	digest, err := makeDigest(ruleDockerBuild, b.name, &dat)
@@ -166,7 +173,7 @@ func (b *dockerBuild) build(env *env, opts *buildOpts) error {
 	}
 	sort.Strings(names)
 
-	prefixDir := b.rule.PrefixDir
+	prefixDir := b.prefixDir
 	if prefixDir != "" && !strings.HasPrefix(prefixDir, "/") {
 		prefixDir = prefixDir + "/"
 	}

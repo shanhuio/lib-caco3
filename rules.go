@@ -76,6 +76,8 @@ type DockerRun struct {
 	Envs    []string `json:",omitempty"`
 	WorkDir string   `json:",omitempty"`
 
+	MountWorkspace string `json:",omitempty"`
+
 	Command []string `json:",omitempty"`
 
 	// Map from input to file inside the container.

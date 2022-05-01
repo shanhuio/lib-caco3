@@ -106,7 +106,7 @@ func (e *env) nameToRepoTag(name string) (string, error) {
 	if len(parts) == 0 {
 		return "", errcode.InvalidArgf("empty name")
 	}
-	if len(name) != 4 {
+	if len(parts) != 4 {
 		return "", errcode.InvalidArgf("invalid name %q", name)
 	}
 

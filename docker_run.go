@@ -108,6 +108,14 @@ func (r *dockerRun) build(env *env, opts *buildOpts) error {
 		Env:     r.envs,
 	}
 
+	if m := r.rule.MountWorkspace; m != "" {
+		contConfig.Mounts = append(contConfig.Mounts, &dock.ContMount{
+			Host:     env.rootDir,
+			Cont:     m,
+			ReadOnly: true,
+		})
+	}
+
 	img, err := env.nameToRepoTag(r.image)
 	if err != nil {
 		return errcode.Annotate(err, "map image name")

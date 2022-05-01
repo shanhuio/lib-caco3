@@ -35,6 +35,21 @@ func listAllFiles(dir string) ([]string, error) {
 			return err
 		}
 		if d.IsDir() { // Ignore all directories.
+			name := d.Name()
+			if name == ".git" {
+				return filepath.SkipDir
+			}
+			if strings.HasPrefix(name, "_") {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		name := d.Name()
+		switch name {
+		case ".gitignore", "COPYING", "tags", ".DS_Store":
+			return nil
+		}
+		if strings.HasSuffix(name, ".caco3") {
 			return nil
 		}
 		files = append(files, p)
@@ -91,8 +106,13 @@ func newFileSet(env *env, p string, r *FileSet) (*fileSet, error) {
 	for _, sel := range r.Select {
 		var matches []string
 		// TODO(h8liu): this can be done better.
-		if strings.HasSuffix(sel, "/**") {
-			dir := env.src(makeRelPath(p, strings.TrimSuffix(sel, "/**")))
+		if strings.HasSuffix(sel, "/**") || sel == "**" {
+			var dir string
+			if sel == "**" {
+				dir = env.src(p)
+			} else {
+				dir = env.src(makeRelPath(p, strings.TrimSuffix(sel, "/**")))
+			}
 			// TODO(h8liu): should also ignore early here when listing.
 			files, err := listAllFiles(dir)
 			if err != nil {
