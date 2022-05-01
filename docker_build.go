@@ -31,7 +31,7 @@ import (
 type dockerBuild struct {
 	name           string
 	rule           *DockerBuild
-	fromRules      []string
+	fromRuleSums   []string
 	dockerfilePath string
 	inputs         []string
 	prefixDir      string
@@ -52,10 +52,11 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 		f = makePath(p, r.Dockerfile)
 	}
 
-	var fromRules []string
+	var fromRuleSums []string
 	if len(r.From) > 0 {
 		for _, from := range r.From {
-			fromRules = append(fromRules, makePath(p, from))
+			rp := makePath(p, from)
+			fromRuleSums = append(fromRuleSums, dockerSumOut(rp))
 		}
 	}
 
@@ -80,7 +81,7 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 		name:           name,
 		rule:           r,
 		dockerfilePath: f,
-		fromRules:      fromRules,
+		fromRuleSums:   fromRuleSums,
 		inputs:         strutil.SortedList(inputMap),
 		prefixDir:      prefixDir,
 		repoTag:        repoTag,
@@ -107,7 +108,7 @@ func (b *dockerBuild) meta(env *env) (*buildRuleMeta, error) {
 
 	var deps []string
 	deps = append(deps, b.dockerfilePath)
-	deps = append(deps, b.fromRules...)
+	deps = append(deps, b.fromRuleSums...)
 	deps = append(deps, b.inputs...)
 
 	return &buildRuleMeta{
