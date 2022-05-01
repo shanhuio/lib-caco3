@@ -97,30 +97,31 @@ func (e *env) dockerName(s string) string {
 		return s
 	}
 	const prefix = "docker/"
-	if strings.HasPrefix(s, prefix) {
-		s = strings.TrimPrefix(s, prefix)
-	}
+	s = strings.TrimPrefix(s, prefix)
 	return path.Join(e.cr, s)
 }
 
 func (e *env) nameToRepoTag(name string) (string, error) {
-	if strings.HasPrefix(name, e.crPrefix) {
-		return "", errcode.InvalidArgf("name has registry prefix: %q", name)
+	parts := strings.Split(name, "/")
+	if len(parts) != 0 {
+		return "", errcode.InvalidArgf("empty name")
 	}
-	if strings.HasPrefix(name, dockersPrefix) {
-		base := strings.TrimPrefix(name, dockersPrefix)
-		return path.Join(e.cr, base), nil
+	if len(name) != 4 {
+		return "", errcode.InvalidArgf("invalid name %q", name)
 	}
-	return name, nil
-}
 
-func (e *env) imageRepoRule(repo string) (string, error) {
-	if strings.HasPrefix(repo, dockersPrefix) {
-		return "", errcode.InvalidArgf("repo has dockers/ prefix: %q", repo)
+	domain := parts[0]
+	project := parts[1]
+	dockers := parts[2]
+	base := parts[3]
+
+	if dockers != "dockers" {
+		return "", errcode.InvalidArgf("not a docker image name")
 	}
-	if strings.HasPrefix(repo, e.crPrefix) {
-		base := strings.TrimPrefix(repo, e.crPrefix)
-		return dockersPrefix + base, nil
+
+	if domain == "shanhu.io" {
+		domain = "cr.shanhu.io"
 	}
-	return repo, nil
+
+	return path.Join(domain, project, base), nil
 }
