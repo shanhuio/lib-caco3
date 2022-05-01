@@ -126,13 +126,9 @@ func (p *dockerPull) build(env *env, opts *buildOpts) error {
 }
 
 func (p *dockerPull) meta(env *env) (*buildRuleMeta, error) {
-	digest := ""
-	if p.rule.Digest != "" {
-		d, err := makeDigest(ruleDockerPull, p.name, p.rule)
-		if err != nil {
-			return nil, errcode.Annotate(err, "digest")
-		}
-		digest = d
+	digest, err := makeDigest(ruleDockerPull, p.name, p.rule)
+	if err != nil {
+		return nil, errcode.Annotate(err, "digest")
 	}
 
 	return &buildRuleMeta{
