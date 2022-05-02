@@ -34,6 +34,9 @@ type buildAction struct {
 	// Map of dependency names to their digiests.
 	Deps map[string]string `json:",omitempty"`
 
+	Outs      []string `json:",omitempty"`
+	DockerOut bool     `json:",omitempty"`
+
 	OutputOf string `json:",omitempty"` // Get the output from a rule.
 }
 

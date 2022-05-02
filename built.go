@@ -36,7 +36,6 @@ func newBuilt(env *env, meta *buildRuleMeta) (*built, error) {
 				)
 			}
 			b.Dockers = append(b.Dockers, sum)
-			continue
 		}
 		stat, err := newOutFileStat(env, out)
 		if err != nil {
