@@ -1,6 +1,5 @@
 ## TODO
 
-- allow docker build input to be zip files
 - sum db and sum file update, for multi archs
 - build all homedrv artifacts
 - build all shanhu artifacts

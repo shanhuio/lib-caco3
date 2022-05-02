@@ -83,6 +83,10 @@ type DockerRun struct {
 	// Map from input to file inside the container.
 	Input map[string]string
 
+	// Map files from zip or tarball archives to directories
+	// inside the container.
+	ArchiveInput map[string]string
+
 	// Map from output path to file inside the container.
 	Output map[string]string `json:",omitempty"`
 

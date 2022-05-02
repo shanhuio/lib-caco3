@@ -212,7 +212,7 @@ func (d *docker) build(dir string, saveName bool) error {
 		if err != nil {
 			return errcode.Annotatef(err, "parse zip input: %q", z)
 		}
-		ts.AddZipFile(p)
+		ts.AddZipFile("", p)
 	}
 
 	opts := &dockerImageOptions{tags: in.tags, saveName: saveName}

@@ -17,6 +17,8 @@ package caco3
 
 import (
 	"log"
+	"path"
+	"strings"
 
 	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/strutil"
@@ -25,15 +27,15 @@ import (
 )
 
 type dockerRun struct {
-	name   string
-	rule   *DockerRun
-	image  string
-	ins    []string
-	inMap  map[string]string
-	deps   []string
-	outs   []string
-	outMap map[string]string
-	envs   map[string]string
+	name    string
+	rule    *DockerRun
+	image   string
+	ins     map[string]string
+	archIns map[string]string
+	deps    []string
+	outs    []string
+	outMap  map[string]string
+	envs    map[string]string
 }
 
 func newDockerRun(env *env, p string, r *DockerRun) *dockerRun {
@@ -48,12 +50,16 @@ func newDockerRun(env *env, p string, r *DockerRun) *dockerRun {
 		depsMap[makePath(p, d)] = true
 	}
 
-	var ins []string
-	inMap := make(map[string]string)
+	ins := make(map[string]string)
 	for f, v := range r.Input {
 		inPath := makePath(p, f)
-		ins = append(ins, inPath)
-		inMap[inPath] = v
+		ins[inPath] = v
+		depsMap[inPath] = true
+	}
+	archIns := make(map[string]string)
+	for f, v := range r.ArchiveInput {
+		inPath := makePath(p, f)
+		archIns[inPath] = v
 		depsMap[inPath] = true
 	}
 	deps = append(deps, strutil.SortedList(depsMap)...)
@@ -68,15 +74,15 @@ func newDockerRun(env *env, p string, r *DockerRun) *dockerRun {
 	outs = strutil.SortedList(strutil.MakeSet(outs))
 
 	return &dockerRun{
-		name:   name,
-		rule:   r,
-		image:  image,
-		ins:    ins,
-		inMap:  inMap,
-		deps:   deps,
-		outs:   outs,
-		outMap: outMap,
-		envs:   makeDockerVars(r.Envs),
+		name:    name,
+		rule:    r,
+		image:   image,
+		ins:     ins,
+		archIns: archIns,
+		deps:    deps,
+		outs:    outs,
+		outMap:  outMap,
+		envs:    makeDockerVars(r.Envs),
 	}
 }
 
@@ -129,7 +135,7 @@ func (r *dockerRun) build(env *env, opts *buildOpts) error {
 	}
 	defer cont.Drop()
 
-	if len(r.ins) > 0 {
+	if len(r.ins)+len(r.archIns) > 0 {
 		ts := tarutil.NewStream()
 		for _, in := range r.ins {
 			var f string
@@ -144,8 +150,29 @@ func (r *dockerRun) build(env *env, opts *buildOpts) error {
 				return errcode.Internalf("unknown type %q", typ)
 			}
 
-			dest := r.inMap[in]
+			dest := r.ins[in]
 			ts.AddFile(dest, new(tarutil.Meta), f)
+		}
+
+		for _, in := range r.archIns {
+			var f string
+			switch typ := env.nodeType(in); typ {
+			case "":
+				return errcode.Internalf("archive input %q not found", in)
+			case nodeSrc:
+				f = env.src(in)
+			case nodeOut:
+				f = env.out(in)
+			default:
+				return errcode.Internalf("unknown type %q", typ)
+			}
+			dest := r.archIns[in]
+			base := path.Base(in)
+			if strings.HasSuffix(base, ".zip") {
+				ts.AddZipFile(dest, f)
+			} else {
+				return errcode.InvalidArgf("unknown archive type %q", base)
+			}
 		}
 
 		if err := dock.CopyInTarStream(cont, ts, "/"); err != nil {
