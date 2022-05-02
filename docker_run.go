@@ -18,6 +18,7 @@ package caco3
 import (
 	"log"
 	"path"
+	"sort"
 	"strings"
 
 	"shanhu.io/misc/errcode"
@@ -137,7 +138,14 @@ func (r *dockerRun) build(env *env, opts *buildOpts) error {
 
 	if len(r.ins)+len(r.archIns) > 0 {
 		ts := tarutil.NewStream()
-		for _, in := range r.ins {
+
+		var ins []string
+		for in := range r.ins {
+			ins = append(ins, in)
+		}
+		sort.Strings(ins)
+
+		for _, in := range ins {
 			var f string
 			switch typ := env.nodeType(in); typ {
 			case "":
@@ -154,7 +162,13 @@ func (r *dockerRun) build(env *env, opts *buildOpts) error {
 			ts.AddFile(dest, new(tarutil.Meta), f)
 		}
 
-		for _, in := range r.archIns {
+		var archIns []string
+		for in := range r.archIns {
+			archIns = append(archIns, in)
+		}
+		sort.Strings(archIns)
+
+		for _, in := range archIns {
 			var f string
 			switch typ := env.nodeType(in); typ {
 			case "":

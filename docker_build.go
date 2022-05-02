@@ -34,6 +34,7 @@ type dockerBuild struct {
 	fromRuleSums   []string
 	dockerfilePath string
 	inputs         []string
+	archInputs     []string
 	prefixDir      string
 	repoTag        string
 	args           map[string]string
@@ -71,6 +72,10 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 	for _, input := range r.Input {
 		inputMap[makePath(p, input)] = true
 	}
+	archInputMap := make(map[string]bool)
+	for _, input := range r.ArchiveInput {
+		archInputMap[makePath(p, input)] = true
+	}
 
 	prefixDir := r.PrefixDir
 	if prefixDir == "." {
@@ -83,6 +88,7 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 		dockerfilePath: f,
 		fromRuleSums:   fromRuleSums,
 		inputs:         strutil.SortedList(inputMap),
+		archInputs:     strutil.SortedList(archInputMap),
 		prefixDir:      prefixDir,
 		repoTag:        repoTag,
 		args:           args,
@@ -110,10 +116,11 @@ func (b *dockerBuild) meta(env *env) (*buildRuleMeta, error) {
 	deps = append(deps, b.dockerfilePath)
 	deps = append(deps, b.fromRuleSums...)
 	deps = append(deps, b.inputs...)
+	deps = append(deps, b.archInputs...)
 
 	return &buildRuleMeta{
 		name:      b.name,
-		deps:      deps,
+		deps:      strutil.SortedList(strutil.MakeSet(deps)),
 		outs:      []string{b.out},
 		dockerOut: true,
 		digest:    digest,
@@ -198,6 +205,28 @@ func (b *dockerBuild) build(env *env, opts *buildOpts) error {
 			return errcode.Internalf("%q is not a regular file", name)
 		}
 		ts.AddFile(tarName, tarutil.ModeMeta(int64(mode)&0777), f)
+	}
+
+	for _, ar := range b.archInputs {
+		var fp string
+		switch typ := env.nodeType(ar); typ {
+		case nodeSrc:
+			fp = env.src(ar)
+		case nodeOut:
+			fp = env.out(ar)
+		default:
+			return errcode.Internalf("unknown type %q", typ)
+		}
+		base := path.Base(ar)
+		dir := path.Dir(ar)
+		if dir == "." {
+			dir = ""
+		}
+		if strings.HasSuffix(base, ".zip") {
+			ts.AddZipFile(dir, fp)
+		} else {
+			return errcode.InvalidArgf("unknown archive type %q", base)
+		}
 	}
 
 	repo, tag := parseRepoTag(b.repoTag)

@@ -60,12 +60,13 @@ type DockerPull struct {
 
 // DockerBuild is a rule to build a docker container image.
 type DockerBuild struct {
-	Name       string
-	Dockerfile string   `json:",omitempty"`
-	From       []string `json:",omitempty"`
-	Input      []string `json:",omitempty"`
-	PrefixDir  string   `json:",omitempty"`
-	Args       []string `json:",omitempty"`
+	Name         string
+	Dockerfile   string   `json:",omitempty"`
+	From         []string `json:",omitempty"`
+	Input        []string `json:",omitempty"`
+	ArchiveInput []string `json:",omitempty"`
+	PrefixDir    string   `json:",omitempty"`
+	Args         []string `json:",omitempty"`
 }
 
 // DockerRun is a rule to run a command inside a docker container image.
