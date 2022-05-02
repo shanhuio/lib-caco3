@@ -40,7 +40,7 @@ func buildDockerImage(
 	env *env, name string, files *tarutil.Stream,
 	options *dockerImageOptions,
 ) error {
-	c := env.docker()
+	c := env.dock
 
 	dockName := env.dockerName(name)
 	if err := dock.BuildImageStream(c, dockName, files); err != nil {

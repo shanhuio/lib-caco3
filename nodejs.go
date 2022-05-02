@@ -65,7 +65,7 @@ func (n *nodeJS) build(dir string, spec *NodeJS) error {
 			ReadOnly: true,
 		}},
 	}
-	client := n.env.docker()
+	client := n.env.dock
 	cont, err := dock.CreateCont(client, n.image, contConfg)
 	if err != nil {
 		return errcode.Annotate(err, "create container")

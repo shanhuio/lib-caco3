@@ -58,7 +58,7 @@ func (a *alpine) buildMod(dir string, pkgs []string) error {
 			ReadOnly: true,
 		}},
 	}
-	client := a.env.docker()
+	client := a.env.dock
 	cont, err := dock.CreateCont(client, a.image, contConfig)
 	if err != nil {
 		return err
@@ -152,7 +152,7 @@ func (a *alpine) build(pkgs []string) error {
 			ReadOnly: true,
 		}},
 	}
-	client := a.env.docker()
+	client := a.env.dock
 	cont, err := dock.CreateCont(client, a.image, contConfig)
 	if err != nil {
 		return err

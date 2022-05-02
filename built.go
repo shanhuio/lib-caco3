@@ -27,8 +27,8 @@ type built struct {
 
 func newBuilt(env *env, meta *buildRuleMeta) (*built, error) {
 	b := new(built)
-	if meta.dockerOut {
-		for _, out := range meta.outs {
+	for i, out := range meta.outs {
+		if i == 0 && meta.dockerOut {
 			sum, err := loadDockerSum(env.out(out))
 			if err != nil {
 				return nil, errcode.Annotatef(
@@ -36,17 +36,15 @@ func newBuilt(env *env, meta *buildRuleMeta) (*built, error) {
 				)
 			}
 			b.Dockers = append(b.Dockers, sum)
+			continue
 		}
-	} else {
-		for _, out := range meta.outs {
-			stat, err := newOutFileStat(env, out)
-			if err != nil {
-				return nil, errcode.Annotatef(
-					err, "get output stat: %s", out,
-				)
-			}
-			b.Outs = append(b.Outs, stat)
+		stat, err := newOutFileStat(env, out)
+		if err != nil {
+			return nil, errcode.Annotatef(
+				err, "get output stat: %s", out,
+			)
 		}
+		b.Outs = append(b.Outs, stat)
 	}
 	return b, nil
 }

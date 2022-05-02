@@ -35,6 +35,8 @@ func newDockerSum(repo, tag, id string) *dockerSum {
 
 func dockerSumOut(name string) string { return name + ".dockersum" }
 
+func dockerTarOut(name string) string { return name + ".tar.gz" }
+
 func loadDockerSum(f string) (*dockerSum, error) {
 	sum := new(dockerSum)
 	if err := jsonutil.ReadFile(f, sum); err != nil {

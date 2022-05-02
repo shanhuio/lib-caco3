@@ -39,6 +39,7 @@ type dockerBuild struct {
 	repoTag        string
 	args           map[string]string
 	out            string
+	tarOut         string
 }
 
 func newDockerBuild(env *env, p string, r *DockerBuild) (
@@ -82,6 +83,11 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 		prefixDir = p
 	}
 
+	var tarOut string
+	if r.OutputTar {
+		tarOut = dockerTarOut(name)
+	}
+
 	return &dockerBuild{
 		name:           name,
 		rule:           r,
@@ -93,6 +99,7 @@ func newDockerBuild(env *env, p string, r *DockerBuild) (
 		repoTag:        repoTag,
 		args:           args,
 		out:            dockerSumOut(name),
+		tarOut:         tarOut,
 	}, nil
 }
 
@@ -101,10 +108,12 @@ func (b *dockerBuild) meta(env *env) (*buildRuleMeta, error) {
 		Dockerfile string            // Know which one is the Dockerfile
 		Args       map[string]string `json:",omitempty"`
 		PrefixDir  string            `json:",omitempty"`
+		OutputTar  bool              `json:",omitempty"`
 	}{
 		Dockerfile: b.dockerfilePath,
 		Args:       b.args,
 		PrefixDir:  b.prefixDir,
+		OutputTar:  b.rule.OutputTar,
 	}
 
 	digest, err := makeDigest(ruleDockerBuild, b.name, &dat)
@@ -118,10 +127,14 @@ func (b *dockerBuild) meta(env *env) (*buildRuleMeta, error) {
 	deps = append(deps, b.inputs...)
 	deps = append(deps, b.archInputs...)
 
+	outs := []string{b.out}
+	if b.tarOut != "" {
+		outs = append(outs, b.tarOut)
+	}
 	return &buildRuleMeta{
 		name:      b.name,
 		deps:      strutil.SortedList(strutil.MakeSet(deps)),
-		outs:      []string{b.out},
+		outs:      outs,
 		dockerOut: true,
 		digest:    digest,
 	}, nil
@@ -250,10 +263,20 @@ func (b *dockerBuild) build(env *env, opts *buildOpts) error {
 
 	out, err := env.prepareOut(b.out)
 	if err != nil {
-		return errcode.Annotate(err, "prepare out")
+		return errcode.Annotate(err, "prepare sum output")
 	}
 	if err := jsonutil.WriteFile(out, sum); err != nil {
 		return errcode.Annotate(err, "write image sum")
+	}
+
+	if b.tarOut != "" {
+		out, err := env.prepareOut(b.tarOut)
+		if err != nil {
+			return errcode.Annotate(err, "prepare tar output")
+		}
+		if err := dock.SaveImageGz(env.dock, rt, out); err != nil {
+			return errcode.Annotate(err, "save image as tar")
+		}
 	}
 
 	return nil

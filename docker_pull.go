@@ -29,6 +29,7 @@ type dockerPull struct {
 	rule    *DockerPull
 	repoTag string
 	out     string
+	tarOut  string
 }
 
 func newDockerPull(env *env, p string, r *DockerPull) (*dockerPull, error) {
@@ -37,12 +38,16 @@ func newDockerPull(env *env, p string, r *DockerPull) (*dockerPull, error) {
 	if err != nil {
 		return nil, errcode.Annotate(err, "invalid docker pull name")
 	}
-	return &dockerPull{
+	pull := &dockerPull{
 		name:    name,
 		rule:    r,
 		repoTag: repoTag,
 		out:     dockerSumOut(name),
-	}, nil
+	}
+	if r.OutputTar {
+		pull.tarOut = dockerTarOut(name)
+	}
+	return pull, nil
 }
 
 func (p *dockerPull) pull(env *env) (*dockerSum, error) {
@@ -122,6 +127,16 @@ func (p *dockerPull) build(env *env, opts *buildOpts) error {
 	if err := jsonutil.WriteFile(out, sum); err != nil {
 		return errcode.Annotate(err, "write image sum")
 	}
+
+	if p.tarOut != "" {
+		out, err := env.prepareOut(p.tarOut)
+		if err != nil {
+			return errcode.Annotate(err, "prepare tar output")
+		}
+		if err := dock.SaveImageGz(env.dock, p.repoTag, out); err != nil {
+			return errcode.Annotate(err, "save image as tar")
+		}
+	}
 	return nil
 }
 
@@ -131,9 +146,14 @@ func (p *dockerPull) meta(env *env) (*buildRuleMeta, error) {
 		return nil, errcode.Annotate(err, "digest")
 	}
 
+	outs := []string{p.out}
+	if p.tarOut != "" {
+		outs = append(outs, p.tarOut)
+	}
+
 	return &buildRuleMeta{
 		name:      p.name,
-		outs:      []string{p.out},
+		outs:      outs,
 		dockerOut: true,
 		digest:    digest,
 	}, nil

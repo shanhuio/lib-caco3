@@ -90,8 +90,6 @@ func (e *env) goSrc() string {
 	return filepath.Join(e.gopath(), "src")
 }
 
-func (e *env) docker() *dock.Client { return e.dock }
-
 func (e *env) dockerName(s string) string {
 	if e.cr == "" {
 		return s

@@ -53,9 +53,10 @@ type Bundle struct {
 
 // DockerPull is a rule to pull down a docker container image.
 type DockerPull struct {
-	Name   string
-	Pull   string `json:",omitempty"`
-	Digest string `json:",omitempty"`
+	Name      string
+	Pull      string `json:",omitempty"`
+	Digest    string `json:",omitempty"`
+	OutputTar bool   `json:",omitempty"`
 }
 
 // DockerBuild is a rule to build a docker container image.
@@ -67,6 +68,7 @@ type DockerBuild struct {
 	ArchiveInput []string `json:",omitempty"`
 	PrefixDir    string   `json:",omitempty"`
 	Args         []string `json:",omitempty"`
+	OutputTar    bool     `json:",omitempty"`
 }
 
 // DockerRun is a rule to run a command inside a docker container image.

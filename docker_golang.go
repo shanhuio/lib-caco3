@@ -47,7 +47,7 @@ var dockerGolang = &baseDocker{
 			return errcode.Annotate(err, "read golang source config")
 		}
 		golang := newGolang(env, env.dockerName(dockerHatch.name))
-		if err := golang.build(env.docker(), src); err != nil {
+		if err := golang.build(env.dock, src); err != nil {
 			return err
 		}
 
