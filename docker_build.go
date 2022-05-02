@@ -16,6 +16,7 @@
 package caco3
 
 import (
+	"log"
 	"os"
 	"path"
 	"sort"
@@ -270,6 +271,7 @@ func (b *dockerBuild) build(env *env, opts *buildOpts) error {
 	}
 
 	if b.tarOut != "" {
+		log.Printf("Saving %s", b.tarOut)
 		out, err := env.prepareOut(b.tarOut)
 		if err != nil {
 			return errcode.Annotate(err, "prepare tar output")

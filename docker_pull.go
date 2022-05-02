@@ -17,6 +17,7 @@ package caco3
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"shanhu.io/misc/errcode"
@@ -129,6 +130,7 @@ func (p *dockerPull) build(env *env, opts *buildOpts) error {
 	}
 
 	if p.tarOut != "" {
+		log.Printf("Saving %s", p.tarOut)
 		out, err := env.prepareOut(p.tarOut)
 		if err != nil {
 			return errcode.Annotate(err, "prepare tar output")
