@@ -39,9 +39,6 @@ func listAllFiles(dir string) ([]string, error) {
 			if name == ".git" {
 				return filepath.SkipDir
 			}
-			if strings.HasPrefix(name, "_") {
-				return filepath.SkipDir
-			}
 			return nil
 		}
 		name := d.Name()
@@ -81,12 +78,22 @@ func newFileSet(env *env, p string, r *FileSet) (*fileSet, error) {
 	}
 
 	var ignores []string
-	for _, i := range r.Ignore {
-		ignores = append(ignores, makeRelPath(p, i))
+	var ignoreDirs []string
+	for _, ignore := range r.Ignore {
+		if strings.HasSuffix(ignore, "/") {
+			ignoreDirs = append(ignoreDirs, makeRelPath(p, ignore))
+		} else {
+			ignores = append(ignores, makeRelPath(p, ignore))
+		}
 	}
 
 	bads := make(map[string]bool)
 	ignore := func(name string) bool {
+		for _, i := range ignoreDirs {
+			if strings.HasPrefix(name, i) {
+				return true
+			}
+		}
 		for _, i := range ignores {
 			matched, err := path.Match(i, name)
 			if err != nil {
