@@ -20,9 +20,10 @@ import (
 )
 
 type dockerSum struct {
-	Repo string
-	Tag  string
-	ID   string
+	Repo   string
+	Tag    string
+	ID     string
+	Origin string `json:",omitempty"`
 }
 
 func newDockerSum(repo, tag, id string) *dockerSum {

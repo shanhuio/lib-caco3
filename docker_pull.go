@@ -113,6 +113,7 @@ func (p *dockerPull) pull(env *env) (*dockerSum, error) {
 	}
 
 	sum := newDockerSum(repo, tag, info.ID)
+	sum.Origin = from
 	return sum, nil
 }
 
