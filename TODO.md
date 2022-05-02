@@ -1,6 +1,13 @@
 ## TODO
 
-- allow docker ubild input to be zip files
-- sum db and sum file update
-- build all homedrv and shanhu artifacts
+- allow docker build input to be zip files
+- sum db and sum file update, for multi archs
+- build all homedrv artifacts
+- build all shanhu artifacts
+
+more:
+
 - refine build cache
+- add tests
+- polish golang builds
+- polish npm builds

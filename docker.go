@@ -171,8 +171,10 @@ func (d *docker) parseInput(dir, in string) (string, error) {
 	}
 	if u.Scheme == "src" {
 		p = d.env.src(strings.TrimPrefix(u.Path, "/"))
+		return p, nil
 	} else if u.Scheme == "out" {
 		p = d.env.out(strings.TrimPrefix(u.Path, "/"))
+		return p, nil
 	}
 	return "", errcode.InvalidArgf("unsupported scheme: %q", in)
 }
