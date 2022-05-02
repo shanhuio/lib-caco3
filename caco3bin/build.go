@@ -97,7 +97,7 @@ func buildTarget(
 	return errcode.NotFoundf("not found")
 }
 
-func cmdBuild(args []string) error {
+func cmdBuildOld(args []string) error {
 	opts := &buildOptions{
 		DockerPull: &caco3.DockerPullOptions{},
 	}
@@ -143,7 +143,7 @@ func cmdBuild(args []string) error {
 	return nil
 }
 
-func cmdBuild2(args []string) error {
+func cmdBuild(args []string) error {
 	flags := cmdFlags.New()
 	config := new(caco3.Config)
 	declareBuildFlags(flags, config)
