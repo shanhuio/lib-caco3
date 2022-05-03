@@ -136,7 +136,7 @@ func (p *dockerPull) build(env *env, opts *buildOpts) error {
 		if err != nil {
 			return errcode.Annotate(err, "prepare tar output")
 		}
-		if err := dock.SaveImageGz(env.dock, p.repoTag, out); err != nil {
+		if err := dock.SaveImageGz(env.dock, sum.ID, out); err != nil {
 			return errcode.Annotate(err, "save image as tar")
 		}
 	}
