@@ -49,7 +49,10 @@ func listAllFiles(dir string) ([]string, error) {
 		if strings.HasSuffix(name, ".caco3") {
 			return nil
 		}
-		files = append(files, p)
+		typ := d.Type()
+		if typ.IsRegular() || typ.Type() == fs.ModeSymlink {
+			files = append(files, p)
+		} // Other types are ignored.
 		return nil
 	}
 

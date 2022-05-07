@@ -16,10 +16,11 @@
 package caco3
 
 import (
+	"io/fs"
+	"os"
 	"sort"
 
 	"shanhu.io/misc/errcode"
-	"shanhu.io/misc/osutil"
 	"shanhu.io/text/lexing"
 )
 
@@ -95,12 +96,14 @@ func (l *loader) load1(name string, pos *lexing.Pos) *buildNode {
 
 	// Auto register and load source files.
 	f := l.env.src(name)
-	isFile, err := osutil.IsRegular(f)
+	stat, err := os.Lstat(f)
 	if err != nil {
-		l.errList.Errorf(pos, "check file %q: %s", f, err)
+		l.errList.Errorf(pos, "stat %q: %s", f, err)
 		return nil
 	}
-	if isFile {
+
+	mode := stat.Mode()
+	if mode.IsRegular() || mode.Type() == fs.ModeSymlink {
 		n := &buildNode{
 			name: name,
 			typ:  nodeSrc,
