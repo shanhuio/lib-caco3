@@ -16,6 +16,7 @@
 package caco3
 
 import (
+	"io/fs"
 	"os"
 
 	"shanhu.io/misc/errcode"
@@ -27,6 +28,7 @@ type fileStat struct {
 	Size         int64
 	ModTimestamp int64
 	Mode         uint32
+	Symlink      string `json:",omitempty"`
 }
 
 const (
@@ -50,12 +52,22 @@ func newFileStat(env *env, p, t string) (*fileStat, error) {
 		f = env.src(p)
 	}
 
-	info, err := os.Lstat(f)
+	info, err := os.Lstat(f) // Does not follow symlink.
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, errcode.NotFoundf("%s:%s not found", t, p)
 		}
 		return nil, err
+	}
+
+	var symLink string
+	mod := info.Mode()
+	if mod&fs.ModeSymlink != 0 { // A sym link.
+		dest, err := os.Readlink(f)
+		if err != nil {
+			return nil, errcode.Annotate(err, "read sym link")
+		}
+		symLink = dest
 	}
 
 	return &fileStat{
@@ -64,6 +76,7 @@ func newFileStat(env *env, p, t string) (*fileStat, error) {
 		Size:         info.Size(),
 		ModTimestamp: info.ModTime().UnixNano(),
 		Mode:         uint32(info.Mode()),
+		Symlink:      symLink,
 	}, nil
 }
 
@@ -79,6 +92,7 @@ func sameFileStat(env *env, stat *fileStat) (bool, error) {
 	same := cur.Size == stat.Size
 	same = same && cur.ModTimestamp == stat.ModTimestamp
 	same = same && cur.Mode == stat.Mode
+	same = same && cur.Symlink == stat.Symlink
 
 	return same, nil
 }
