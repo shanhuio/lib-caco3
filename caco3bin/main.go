@@ -21,7 +21,6 @@ import (
 
 func cmd() *subcmd.List {
 	c := subcmd.New()
-	c.Add("build-old", "builds a target", cmdBuildOld)
 	c.Add("build", "build rules", cmdBuild)
 	c.Add("sync", "sync source repos", cmdSync)
 	return c

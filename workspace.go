@@ -23,9 +23,7 @@ import (
 // Workspace is the structure of the build.jsonx file. It specifies how
 // to build a project.
 type Workspace struct {
-	RepoMap        *RepoMap
-	Steps          []*BuildStep `json:",omitempty"`
-	DockerSaveName bool         `json:",omitempty"`
+	RepoMap *RepoMap
 }
 
 // RepoMap contains the list of repos to clone down.
@@ -34,43 +32,11 @@ type RepoMap struct {
 	Map        map[string]string
 }
 
-// BuildOptions contains the options to for the entire build.
-type BuildOptions struct {
-	DockerSaveName bool
-}
-
-// BuildStep is a rule for a step to build one or several targets in a
-// directory.
-type BuildStep struct {
-	Name       string
-	Dir        string       `json:",omitempty"`
-	GoBinary   []string     `json:",omitempty"`
-	NodeJS     *NodeJS      `json:",omitempty"`
-	Dockers    []string     `json:",omitempty"`
-	DockerPull *DockerPulls `json:",omitempty"`
-}
-
-// NodeJS is a rule to build a nodejs/npm package.
-type NodeJS struct {
-	Output []string `json:",omitempty"`
-}
-
-// DockerPulls specifies how to pull docker images from docker hub or other
-// docker registries.
-type DockerPulls struct {
-	Images string
-	Sums   map[string]string `json:",omitempty"`
-}
-
 func readWorkspace(f string) (*Workspace, []*lexing.Error) {
 	tm := func(t string) interface{} {
 		switch t {
 		case "repo_map":
 			return new(RepoMap)
-		case "build_step":
-			return new(BuildStep)
-		case "build_options":
-			return new(BuildOptions)
 		}
 		return nil
 	}
@@ -82,10 +48,6 @@ func readWorkspace(f string) (*Workspace, []*lexing.Error) {
 	ws := new(Workspace)
 	for _, entry := range entries {
 		switch v := entry.V.(type) {
-		case *BuildStep:
-			ws.Steps = append(ws.Steps, v)
-		case *BuildOptions:
-			ws.DockerSaveName = v.DockerSaveName
 		case *RepoMap:
 			ws.RepoMap = v
 		}

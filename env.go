@@ -28,11 +28,10 @@ import (
 type env struct {
 	dock *dock.Client
 
-	workDir  string
-	rootDir  string
-	srcDir   string
-	goSrcDir string
-	outDir   string
+	workDir string
+	rootDir string
+	srcDir  string
+	outDir  string
 
 	cr       string
 	crPrefix string
@@ -73,30 +72,6 @@ func (e *env) out(ps ...string) string {
 
 func (e *env) src(ps ...string) string {
 	return dirFilePath(e.srcDir, ps...)
-}
-
-func (e *env) gopath() string { return e.src("go") }
-
-func (e *env) goSrc() string {
-	if e.goSrcDir != "" {
-		if e.goSrcDir == "@" {
-			if sys := systemGoSrc(); sys != "" {
-				return sys
-			}
-		} else {
-			return e.goSrcDir
-		}
-	}
-	return filepath.Join(e.gopath(), "src")
-}
-
-func (e *env) dockerName(s string) string {
-	if e.cr == "" {
-		return s
-	}
-	const prefix = "docker/"
-	s = strings.TrimPrefix(s, prefix)
-	return path.Join(e.cr, s)
 }
 
 func (e *env) nameToRepoTag(name string) (string, error) {
