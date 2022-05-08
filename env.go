@@ -113,8 +113,8 @@ func (e *env) nameToRepoTag(name string) (string, error) {
 	dockers := parts[2]
 	base := parts[3]
 
-	if dockers != "dockers" && !strings.HasPrefix(dockers, "-dockers") {
-		return "", errcode.InvalidArgf("not a docker image name")
+	if dockers != "dockers" && !strings.HasSuffix(dockers, "-dockers") {
+		return "", errcode.InvalidArgf("not a docker image name: %q", name)
 	}
 
 	if domain == "shanhu.io" {
