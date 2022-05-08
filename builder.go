@@ -29,11 +29,16 @@ import (
 // Config provide the configuration to start a builder.
 type Config struct {
 	Root string // Root directory
+
+	AlwaysRebuild bool // Always rebuild everything.
+
+	UseDockerBuildCache bool // Use docker build cache.
 }
 
 // Builder builds stuff.
 type Builder struct {
-	env *env
+	env  *env
+	opts *buildOpts
 }
 
 const workspaceFile = "WORKSPACE.caco3"
@@ -47,8 +52,17 @@ func NewBuilder(workDir string, config *Config) *Builder {
 		srcDir:  filepath.Join(config.Root, "src"),
 		outDir:  filepath.Join(config.Root, "out"),
 	}
-
-	return &Builder{env: env}
+	opts := &buildOpts{
+		log:           os.Stderr,
+		alwaysRebuild: config.AlwaysRebuild,
+		docker: &dockerOpts{
+			useBuildCache: config.UseDockerBuildCache,
+		},
+	}
+	return &Builder{
+		env:  env,
+		opts: opts,
+	}
 }
 
 // ReadWorkspace reads and loads the WORKSPACE file into the build env.
@@ -174,7 +188,7 @@ func (b *Builder) buildNode(ctx *buildContext, n *buildNode) (
 	}
 
 	// Build.
-	if !outputChanged { // Cache hit.
+	if !outputChanged && !b.opts.alwaysRebuild { // Cache hit.
 		return digest, nil
 	}
 	if err := ctx.cache.remove(digest); err != nil {
@@ -183,12 +197,7 @@ func (b *Builder) buildNode(ctx *buildContext, n *buildNode) (
 
 	if n.typ == nodeRule && n.rule != nil {
 		log.Printf("BUILD %s", n.name)
-		// TODO(h8liu): better opts
-		opts := &buildOpts{
-			log:    os.Stderr,
-			docker: &dockerOpts{useBuildCache: true},
-		}
-		if err := n.rule.build(b.env, opts); err != nil {
+		if err := n.rule.build(b.env, b.opts); err != nil {
 			return "", errcode.Annotatef(err, "build %s", n.name)
 		}
 

@@ -26,4 +26,6 @@ type dockerOpts struct {
 type buildOpts struct {
 	log    io.Writer
 	docker *dockerOpts
+
+	alwaysRebuild bool
 }
