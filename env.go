@@ -33,12 +33,6 @@ type env struct {
 	srcDir  string
 	outDir  string
 
-	cr       string
-	crPrefix string
-
-	goVersion     string
-	sshKnownHosts string
-
 	workspace *Workspace // Lazily loaded.
 
 	nodeType func(name string) string
