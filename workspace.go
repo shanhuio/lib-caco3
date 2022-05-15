@@ -29,7 +29,7 @@ type Workspace struct {
 // RepoMap contains the list of repos to clone down.
 type RepoMap struct {
 	GitHosting map[string]string `json:",omitempty"`
-	Map        map[string]string
+	Src        map[string]string
 }
 
 func readWorkspace(f string) (*Workspace, []*lexing.Error) {
