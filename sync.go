@@ -159,7 +159,7 @@ func syncRepos(env *env, sums *RepoSums) (*RepoSums, error) {
 	ws := env.workspace
 
 	var dirs []string
-	for dir := range ws.RepoMap.Map {
+	for dir := range ws.RepoMap.Src {
 		dirs = append(dirs, dir)
 	}
 	sort.Strings(dirs)
@@ -170,7 +170,7 @@ func syncRepos(env *env, sums *RepoSums) (*RepoSums, error) {
 	}
 	repos := make(map[string]string)
 	for _, dir := range dirs {
-		repo := ws.RepoMap.Map[dir]
+		repo := ws.RepoMap.Src[dir]
 		if repo == "" {
 			domain, p, ok := strings.Cut(dir, "/")
 			if !ok {
