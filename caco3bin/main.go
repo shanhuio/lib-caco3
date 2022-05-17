@@ -26,5 +26,5 @@ func cmd() *subcmd.List {
 	return c
 }
 
-// Main is the entrance for the elsa binary.
+// Main is the entrance for the caco3 binary.
 func Main() { cmd().Main() }

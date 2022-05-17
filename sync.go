@@ -72,7 +72,7 @@ func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 		return nil, errcode.Annotate(err, "check git dir")
 	}
 
-	const stashBranch = "elsa"
+	const stashBranch = "caco3"
 
 	if !exist {
 		if err := runCmd(dir, "git", "init", "-q"); err != nil {
