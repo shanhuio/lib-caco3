@@ -158,12 +158,12 @@ func loadNodes(env *env, names []string) (
 	l := newLoader(env)
 
 	repoMap := env.workspace.RepoMap
-	if repoMap == nil || len(repoMap.Map) == 0 {
+	if repoMap == nil || len(repoMap.Src) == 0 {
 		err := errcode.InvalidArgf("repo map missing")
 		return nil, nil, lexing.SingleErr(err)
 	}
 	var dirs []string
-	for dir := range repoMap.Map {
+	for dir := range repoMap.Src {
 		dirs = append(dirs, dir)
 	}
 	sort.Strings(dirs)

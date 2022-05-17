@@ -26,10 +26,18 @@ type Workspace struct {
 	RepoMap *RepoMap
 }
 
+// GitRemote defines a set of remote URLs for a given name. It provides a more
+// consistent remote setup for the repositories in the workspace.
+type GitRemote struct {
+	Name string
+	URL  map[string]string
+}
+
 // RepoMap contains the list of repos to clone down.
 type RepoMap struct {
-	GitHosting map[string]string `json:",omitempty"`
-	Map        map[string]string
+	GitHosting  map[string]string `json:",omitempty"`
+	Src         map[string]string
+	ExtraRemote []*GitRemote `json:",omitempty"`
 }
 
 func readWorkspace(f string) (*Workspace, []*lexing.Error) {
