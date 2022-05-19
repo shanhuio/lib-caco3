@@ -35,9 +35,9 @@ type GitRemote struct {
 
 // RepoMap contains the list of repos to clone down.
 type RepoMap struct {
-	GitHosting  map[string]string `json:",omitempty"`
-	Src         map[string]string
-	ExtraRemote []*GitRemote `json:",omitempty"`
+	GitHosting   map[string]string `json:",omitempty"`
+	Src          map[string]string
+	ExtraRemotes []*GitRemote `json:",omitempty"`
 }
 
 func readWorkspace(f string) (*Workspace, []*lexing.Error) {
