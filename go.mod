@@ -3,9 +3,9 @@ module shanhu.io/caco3
 go 1.18
 
 require (
-	modernc.org/sqlite v1.17.1
-	shanhu.io/misc v0.0.0-20220502004337-6542f0456326
-	shanhu.io/pisces v0.0.0-20220416025110-8e5689e21da5
+	modernc.org/sqlite v1.17.2
+	shanhu.io/misc v0.0.0-20220519031049-35e5317df87b
+	shanhu.io/pisces v0.0.0-20220507231451-47e53440b995
 	shanhu.io/text v0.0.0-20220403174149-0195ecfdda87
 	shanhu.io/virgo v0.0.0-20220504222513-93b9fa1b5080
 )
@@ -16,16 +16,16 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
-	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
+	golang.org/x/sys v0.0.0-20220519141025-dcacdad47464 // indirect
 	golang.org/x/tools v0.1.10 // indirect
-	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
+	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.36.0 // indirect
 	modernc.org/ccgo/v3 v3.16.6 // indirect
-	modernc.org/libc v1.16.7 // indirect
+	modernc.org/libc v1.16.8 // indirect
 	modernc.org/mathutil v1.4.1 // indirect
 	modernc.org/memory v1.1.1 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/strutil v1.1.1 // indirect
+	modernc.org/strutil v1.1.2 // indirect
 	modernc.org/token v1.0.0 // indirect
 )
