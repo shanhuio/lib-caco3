@@ -31,6 +31,7 @@ func cmdSync(args []string) error {
 	declareBuildFlags(flags, config)
 	pull := flags.Bool("pull", false, "pull latest commit")
 	save := flags.Bool("save", false, "save latest commit into sums file")
+	setRemotes := flags.Bool("set_remotes", false, "sets remote URLs")
 	flags.ParseArgs(args)
 
 	wd, err := os.Getwd()
@@ -53,7 +54,11 @@ func cmdSync(args []string) error {
 		sums = s
 	}
 
-	newSums, err := b.SyncRepos(sums)
+	opts := &caco3.SyncOptions{
+		SetRemotes: *setRemotes,
+	}
+
+	newSums, err := b.SyncRepos(sums, opts)
 	if err != nil {
 		return err
 	}

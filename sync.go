@@ -155,7 +155,15 @@ func gitSync(name, dir, remote, commit string) (*syncResult, error) {
 	}, nil
 }
 
-func syncRepos(env *env, sums *RepoSums) (*RepoSums, error) {
+// SyncOptions contains options for syncing remote repositories.
+type SyncOptions struct {
+	// Set remotes for existing repositories.
+	SetRemotes bool
+}
+
+func syncRepos(env *env, sums *RepoSums, opts *SyncOptions) (
+	*RepoSums, error,
+) {
 	ws := env.workspace
 
 	var dirs []string
@@ -211,5 +219,52 @@ func syncRepos(env *env, sums *RepoSums) (*RepoSums, error) {
 		}
 		curSums.RepoCommits[dir] = result.commit
 	}
+
+	if opts.SetRemotes {
+		for _, dir := range dirs {
+			srcDir := env.src(dir)
+			remotes, err := listRemotes(srcDir)
+			if err != nil {
+				return nil, errcode.Annotate(err, "list remotes")
+			}
+
+			var wants []*gitRemote
+			wants = append(wants, &gitRemote{
+				name: "origin",
+				git:  repos[dir],
+			})
+			for _, extra := range ws.RepoMap.ExtraRemotes {
+				if url, ok := extra.URL[dir]; ok {
+					wants = append(wants, &gitRemote{
+						name: extra.Name,
+						git:  url,
+					})
+				}
+			}
+
+			for _, r := range wants {
+				if cur, ok := remotes[r.name]; !ok {
+					log.Printf("%q: add remote %q", dir, r.name)
+					if err := runCmd(
+						srcDir, "git", "remote", "add", r.name, r.git,
+					); err != nil {
+						return nil, errcode.Annotatef(
+							err, "add git remote %q for %q", r.name, dir,
+						)
+					}
+				} else if cur.git != r.git {
+					log.Printf("%q: set remote %q", dir, r.name)
+					if err := runCmd(
+						srcDir, "git", "remote", "set-url", r.name, r.git,
+					); err != nil {
+						return nil, errcode.Annotatef(
+							err, "set git remote %q for %q", r.name, dir,
+						)
+					}
+				}
+			}
+		}
+	}
+
 	return curSums, nil
 }
