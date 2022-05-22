@@ -3,11 +3,11 @@ module shanhu.io/caco3
 go 1.18
 
 require (
-	modernc.org/sqlite v1.17.2
-	shanhu.io/misc v0.0.0-20220519031049-35e5317df87b
-	shanhu.io/pisces v0.0.0-20220507231451-47e53440b995
+	modernc.org/sqlite v1.17.3
+	shanhu.io/misc v0.0.0-20220522013609-f86b37f230aa
+	shanhu.io/pisces v0.0.0-20220522013634-11936bc80278
 	shanhu.io/text v0.0.0-20220403174149-0195ecfdda87
-	shanhu.io/virgo v0.0.0-20220504222513-93b9fa1b5080
+	shanhu.io/virgo v0.0.0-20220522013639-f87558fd9926
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
-	golang.org/x/sys v0.0.0-20220519141025-dcacdad47464 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/tools v0.1.10 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
