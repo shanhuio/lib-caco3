@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/osutil"
@@ -44,12 +45,7 @@ type Builder struct {
 
 const workspaceFile = "WORKSPACE.caco3"
 
-func findRoot() (string, error) {
-	cur, err := os.Getwd()
-	if err != nil {
-		return "", errcode.Annotate(err, "get current work dir")
-	}
-
+func findRoot(cur string) (string, error) {
 	for {
 		f := filepath.Join(cur, workspaceFile)
 		ok, err := osutil.IsRegular(f)
@@ -69,21 +65,35 @@ func findRoot() (string, error) {
 
 // NewBuilder creates a new builder that builds stuff.
 func NewBuilder(workDir string, config *Config) (*Builder, error) {
+	if !filepath.IsAbs(workDir) {
+		return nil, errcode.InvalidArgf("work dir %q is relative", workDir)
+	}
+	if filepath.Clean(workDir) != workDir {
+		return nil, errcode.InvalidArgf("work dir %q is dirty", workDir)
+	}
+
 	root := config.Root
 	if root == "" {
-		dir, err := findRoot()
+		dir, err := findRoot(workDir)
 		if err != nil {
 			return nil, errcode.Annotate(err, "find root")
 		}
 		root = dir
 	}
 
+	srcDir := filepath.Join(root, "src")
+	workSrcPath := ""
+	if strings.HasPrefix(workDir, srcDir+"/") {
+		workSrcPath = filepath.ToSlash(strings.TrimPrefix(workDir, srcDir+"/"))
+	}
+
 	env := &env{
-		dock:    dock.NewUnixClient(""),
-		workDir: workDir,
-		rootDir: root,
-		srcDir:  filepath.Join(root, "src"),
-		outDir:  filepath.Join(root, "out"),
+		dock:        dock.NewUnixClient(""),
+		rootDir:     root,
+		workDir:     workDir,
+		workSrcPath: workSrcPath,
+		srcDir:      srcDir,
+		outDir:      filepath.Join(root, "out"),
 	}
 	opts := &buildOpts{
 		log:           os.Stderr,

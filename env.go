@@ -28,10 +28,12 @@ import (
 type env struct {
 	dock *dock.Client
 
-	workDir string
-	rootDir string
-	srcDir  string
-	outDir  string
+	rootDir     string
+	workDir     string
+	workSrcPath string
+
+	srcDir string
+	outDir string
 
 	workspace *Workspace // Lazily loaded.
 
