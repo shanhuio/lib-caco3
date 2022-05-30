@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 
 	"shanhu.io/misc/errcode"
+	"shanhu.io/misc/osutil"
 	"shanhu.io/text/lexing"
 	"shanhu.io/virgo/dock"
 )
@@ -43,14 +44,46 @@ type Builder struct {
 
 const workspaceFile = "WORKSPACE.caco3"
 
+func findRoot() (string, error) {
+	cur, err := os.Getwd()
+	if err != nil {
+		return "", errcode.Annotate(err, "get current work dir")
+	}
+
+	for {
+		f := filepath.Join(cur, workspaceFile)
+		ok, err := osutil.IsRegular(f)
+		if err != nil {
+			return "", errcode.Annotatef(err, "check %q", f)
+		}
+		if ok {
+			return cur, nil
+		}
+		if cur == "" || cur == "/" {
+			break
+		}
+		cur = filepath.Dir(cur)
+	}
+	return "", errcode.InvalidArgf("not in a workspace")
+}
+
 // NewBuilder creates a new builder that builds stuff.
-func NewBuilder(workDir string, config *Config) *Builder {
+func NewBuilder(workDir string, config *Config) (*Builder, error) {
+	root := config.Root
+	if root == "" {
+		dir, err := findRoot()
+		if err != nil {
+			return nil, errcode.Annotate(err, "find root")
+		}
+		root = dir
+	}
+
 	env := &env{
 		dock:    dock.NewUnixClient(""),
 		workDir: workDir,
-		rootDir: config.Root,
-		srcDir:  filepath.Join(config.Root, "src"),
-		outDir:  filepath.Join(config.Root, "out"),
+		rootDir: root,
+		srcDir:  filepath.Join(root, "src"),
+		outDir:  filepath.Join(root, "out"),
 	}
 	opts := &buildOpts{
 		log:           os.Stderr,
@@ -62,7 +95,7 @@ func NewBuilder(workDir string, config *Config) *Builder {
 	return &Builder{
 		env:  env,
 		opts: opts,
-	}
+	}, nil
 }
 
 // ReadWorkspace reads and loads the WORKSPACE file into the build env.

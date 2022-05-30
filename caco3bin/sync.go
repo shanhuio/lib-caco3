@@ -39,7 +39,10 @@ func cmdSync(args []string) error {
 		return errcode.Annotate(err, "get work dir")
 	}
 
-	b := caco3.NewBuilder(wd, config)
+	b, err := caco3.NewBuilder(wd, config)
+	if err != nil {
+		return errcode.Annotate(err, "new builder")
+	}
 
 	if _, errs := b.ReadWorkspace(); errs != nil {
 		lexing.FprintErrs(os.Stderr, errs, wd)

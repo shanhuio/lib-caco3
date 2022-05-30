@@ -40,7 +40,10 @@ func cmdBuild(args []string) error {
 	}
 	config.Root = root
 
-	b := caco3.NewBuilder(wd, config)
+	b, err := caco3.NewBuilder(wd, config)
+	if err != nil {
+		return errcode.Annotate(err, "new builder")
+	}
 
 	if _, errs := b.ReadWorkspace(); errs != nil {
 		lexing.FprintErrs(os.Stderr, errs, wd)
