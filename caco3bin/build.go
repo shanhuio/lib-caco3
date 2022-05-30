@@ -34,11 +34,13 @@ func cmdBuild(args []string) error {
 	if err != nil {
 		return errcode.Annotate(err, "get work dir")
 	}
-	root, err := filepath.Abs(config.Root)
-	if err != nil {
-		return errcode.Annotate(err, "get abs root dir")
+	if config.Root != "" {
+		root, err := filepath.Abs(config.Root)
+		if err != nil {
+			return errcode.Annotate(err, "get abs root dir")
+		}
+		config.Root = root
 	}
-	config.Root = root
 
 	b, err := caco3.NewBuilder(wd, config)
 	if err != nil {

@@ -80,6 +80,7 @@ func NewBuilder(workDir string, config *Config) (*Builder, error) {
 		}
 		root = dir
 	}
+	log.Printf("root: %s", root)
 
 	srcDir := filepath.Join(root, "src")
 	workSrcPath := ""
@@ -138,6 +139,15 @@ func (b *Builder) SyncRepos(sums *RepoSums, opts *SyncOptions) (
 
 // Build builds the given rules.
 func (b *Builder) Build(rules []string) []*lexing.Error {
+	if w := b.env.workSrcPath; w != "" {
+		var absPaths []string
+		for _, r := range rules {
+			p := makePath(w, r)
+			absPaths = append(absPaths, p)
+		}
+		rules = absPaths
+	}
+
 	nodes, nodeMap, errs := loadNodes(b.env, rules)
 	if errs != nil {
 		return errs
