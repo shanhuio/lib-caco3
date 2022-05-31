@@ -80,7 +80,6 @@ func NewBuilder(workDir string, config *Config) (*Builder, error) {
 		}
 		root = dir
 	}
-	log.Printf("root: %s", root)
 
 	srcDir := filepath.Join(root, "src")
 	workSrcPath := ""
