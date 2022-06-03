@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	modernc.org/sqlite v1.17.3
-	shanhu.io/misc v0.0.0-20220530000842-756d5804d596
-	shanhu.io/pisces v0.0.0-20220530000859-c698d92ceb04
+	shanhu.io/misc v0.0.0-20220603031120-2403304a6239
+	shanhu.io/pisces v0.0.0-20220603031135-617aa9c735bc
 	shanhu.io/text v0.0.0-20220403174149-0195ecfdda87
-	shanhu.io/virgo v0.0.0-20220530000904-af0637777bf9
+	shanhu.io/virgo v0.0.0-20220603031140-d1b23b9c84f2
 )
 
 require (
