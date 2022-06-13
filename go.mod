@@ -5,7 +5,7 @@ go 1.18
 require (
 	modernc.org/sqlite v1.17.3
 	shanhu.io/misc v0.0.0-20220611060315-8859eeda5904
-	shanhu.io/pisces v0.0.0-20220611060344-f40cf3b08319
+	shanhu.io/pisces v0.0.0-20220613063451-0b25eb4cba47
 	shanhu.io/text v0.0.0-20220403174149-0195ecfdda87
 	shanhu.io/virgo v0.0.0-20220611060349-319a7a841fa0
 )
