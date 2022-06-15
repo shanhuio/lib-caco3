@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	modernc.org/sqlite v1.17.3
-	shanhu.io/misc v0.0.0-20220611060315-8859eeda5904
-	shanhu.io/pisces v0.0.0-20220613063451-0b25eb4cba47
+	shanhu.io/misc v0.0.0-20220615004914-f315b78ec72e
+	shanhu.io/pisces v0.0.0-20220615004935-06badb59ff41
 	shanhu.io/text v0.0.0-20220403174149-0195ecfdda87
-	shanhu.io/virgo v0.0.0-20220611060349-319a7a841fa0
+	shanhu.io/virgo v0.0.0-20220615004940-2fa16473665a
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/sys v0.0.0-20220610221304-9f5ed59c137d // indirect
+	golang.org/x/sys v0.0.0-20220614162138-6c1b26c55098 // indirect
 	golang.org/x/tools v0.1.11 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.36.0 // indirect
